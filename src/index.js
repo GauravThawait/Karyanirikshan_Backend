@@ -51,6 +51,11 @@ app.get("/user/all", async(req, res) => {
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+
+app.get("/", (req, res) => {
+    res.send("Server is running")
+})
+
 app.listen(process.env.PORT || 8000, () => {
     console.log(`Server listening on PORT ${process.env.PORT}`)
 })
