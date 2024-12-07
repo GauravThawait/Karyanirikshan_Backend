@@ -3,7 +3,6 @@ import errorHandler from './middleware/errorHandler.js'
 import cookieParser from 'cookie-parser'
 import cors from 'cors'
 
-
 const app = express()
 
 const corsOptions = {

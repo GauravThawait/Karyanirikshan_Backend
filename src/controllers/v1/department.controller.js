@@ -26,6 +26,4 @@ const createDepartment = asyncHandler( async(req, res) => {
 
 })
 
-
-
 export {createDepartment}
