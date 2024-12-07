@@ -9,8 +9,6 @@ import { generateToken } from "../../auth/jwtAuth.js";
 const registerUser = asyncHandler( async(req,res) => {
     const {name, username, password, role, departmentId} = req.body;
 
-    console.log(req.body)
-
     if([name, username, password, role, departmentId]
         .some((item) => item === undefined || item === null || item.trim() === '' ))
         {
