@@ -4,7 +4,6 @@ import dbClient from './src/db/connectDb.js'
 import serverless from 'serverless-http';
 
 dotenv.config()
-
 dbClient.connect()
     .then(() => {
         console.log("Connected to PostgreSQL")
