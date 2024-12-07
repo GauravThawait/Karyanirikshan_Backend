@@ -1,7 +1,6 @@
 import app from './src/app.js'
 import dotenv from 'dotenv'
 import dbClient from './src/db/connectDb.js'
-import serverless from 'serverless-http';
 
 dotenv.config()
 
@@ -20,6 +19,3 @@ app.get("/", (req, res) => {
 app.listen(process.env.PORT || 8000, () => {
     console.log(`Server listening on PORT ${process.env.PORT}`)
 })
-
-// Export the handler for AWS Lambda
-export const handler = serverless(app);
