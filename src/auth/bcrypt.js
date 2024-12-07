@@ -1,4 +1,4 @@
-import bcrypt from 'bcrypt'
+import bcrypt from 'bcryptjs'
 
 const hashPassword = async (password) => {
     const result = await bcrypt.hash(password, 10)
