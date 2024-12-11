@@ -5,7 +5,6 @@ import { ApiResponse } from "../../utils/ApiResponse.js";
 import { hashPassword, isPasswordCorrect } from "../../auth/bcrypt.js";
 import { generateToken } from "../../auth/jwtAuth.js";
 
-
 const registerUser = asyncHandler( async(req,res) => {
     const {name, username, password, role, departmentId} = req.body;
 
@@ -29,7 +28,7 @@ const registerUser = asyncHandler( async(req,res) => {
         throw new ApiError(500, "Error while creating user")
     }
 
-    return res.status(200).json(new ApiResponse(200, data, "User Created Successfully"))
+    return res.status(201).json(new ApiResponse(201, [], "User Created Successfully"))
 })
 
 const login = asyncHandler( async(req, res)=> {
@@ -51,6 +50,9 @@ const login = asyncHandler( async(req, res)=> {
         throw new ApiError(404,"Invalid user credentials")
     }
 
+    //for getting all details of user
+    const data = await userService.getUserWithDepartment(existUser.id)
+    
     const token = generateToken(existUser.id)
 
     const options = {
@@ -66,10 +68,9 @@ const login = asyncHandler( async(req, res)=> {
     .json(
         new ApiResponse(
             200,
-            existUser
+            data
         )
     )
-
 })
 
 export {registerUser, login}
