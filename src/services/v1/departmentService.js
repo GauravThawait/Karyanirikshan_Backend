@@ -14,11 +14,17 @@ const getByName = async(name) => {
     return result.rows[0]
 }
 
-const create = async(name, hindi_name) => {
-    const query = 'INSERT INTO departments (name, hindi_name) VALUES ($1, $2) RETURNING * '
-    const result = await dbClient.query(query, [name, hindi_name])
+const create = async(name, hindi_name, type) => {
+    const query = 'INSERT INTO departments (name, hindi_name, type) VALUES ($1, $2, $3) RETURNING * '
+    const result = await dbClient.query(query, [name, hindi_name, type])
     return result.rows[0]
 }
 
-const departmentService = {getById, getByName, create}
+
+const getListByType = async(type) => {
+    const query = `SELECT * from departments WHERE type = $1`
+    const result = await dbClient.query(query, [type])
+    return result.rows || {rows : []}
+}
+const departmentService = {getById, getByName, create, getListByType}
 export default departmentService

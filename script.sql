@@ -17,6 +17,19 @@ CREATE TABLE registers (
 )
 
 
+-- Step 1: Create the ENUM type for departments type
+CREATE TYPE department_type AS ENUM ('inside', 'outside');
+
+-- Step 2: Create the table with the ENUM column
+CREATE TABLE documents (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    name VARCHAR(50) NOT NULL,
+    hindi_name VARCHAR(50) NOT NULL,
+    type department_type NOT NULL, 
+    created_at TIMESTAMP DEFAULT NOW()
+)
+
+
 CREATE TABLE documents (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),                    -- Unique identifier for the document
     register_id UUID NOT NULL,                                        -- Register ID
