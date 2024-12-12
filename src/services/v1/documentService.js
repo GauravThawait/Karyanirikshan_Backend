@@ -84,6 +84,7 @@ const getById = async(Id) => {
         doc.priority,
         doc.grade,
         doc.tags,
+        doc.current_department,
         reg.name AS register_name,
         dep.name AS department_name,
         u.name AS created_by
@@ -110,6 +111,20 @@ const deleteById = async(Id) => {
     return result.rowCount
 }
 
+const updateCurrentDepartment = async(documentId, currentDepartmentId) => {
+    const query = `
+        UPDATE documents
+            SET
+                current_department = $1
+        WHERE
+            id = $2
+        RETURNING * `
 
-const documentService = {create, getAllList, getById, deleteById}
+    const result = await dbClient.query(query, [documentId, currentDepartmentId])
+    return result.rows[0]
+}
+
+
+
+const documentService = {create, getAllList, getById, deleteById, updateCurrentDepartment}
 export default documentService

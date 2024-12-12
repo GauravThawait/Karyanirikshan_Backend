@@ -27,6 +27,7 @@ import departmentRouterV1 from './routes/v1/department.routes.js'
 import registerRouterV1 from './routes/v1/register.routes.js'
 import documentRouterV1 from './routes/v1/document.routes.js'
 import transferRouterV1 from './routes/v1/transfer.routes.js'
+import logsRouterV1 from './routes/v1/logs.routes.js'
 
 
 app.use("/api/v1/user", userRouterV1)
@@ -34,6 +35,7 @@ app.use("/api/v1/department", departmentRouterV1)
 app.use("/api/v1/register", registerRouterV1)
 app.use('/api/v1/document', documentRouterV1)
 app.use('/api/v1/transfer',transferRouterV1)
+app.use("/api/v1/log", logsRouterV1)
 
 //Error handler
 app.use(errorHandler);

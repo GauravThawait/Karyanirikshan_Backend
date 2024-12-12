@@ -76,13 +76,14 @@ const getListByDepartmentId = asyncHandler( async(req, res) => {
 
 const acceptByTransferId = asyncHandler( async(req, res) => {
     const {Id, userId} = req.body;
+    // here id transfer_logs id
 
     if(Id === undefined || Id == null || Id.trim() ==""){
         throw new ApiError(400, "Bad request")
     }
 
     const validTransferReq = await transferService.getById(Id)
-
+    
     if(!validTransferReq){
         throw new ApiError(400, "No Transfer Log found")
     }
@@ -99,7 +100,9 @@ const acceptByTransferId = asyncHandler( async(req, res) => {
 
     const data = await transferService.updateLogs(Id, userId)
 
-    if(!data){
+    const updateDocument = await documentService.updateCurrentDepartment(validTransferReq.to_department_id, validTransferReq.document_id)
+    
+    if(!data || !updateDocument){
         throw new ApiError(500, "Internal Server Error")
     }
 

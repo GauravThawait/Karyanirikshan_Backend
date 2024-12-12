@@ -85,3 +85,23 @@ CREATE TABLE Transfer_Logs(
         REFERENCES users (id)
         ON DELETE SET NULL
 );
+
+
+CREATE TABLE document_logs(
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    document_id UUID NOT NULL,
+    handled_department_id UUID NOT NULL,
+    handled_user_id UUID NOT NULL,
+    action TEXT NOT NULL,
+    remark TEXT,
+    timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT fk_document FOREIGN KEY (document_id)
+        REFERENCES documents(id)
+        ON DELETE CASCADE,
+    CONSTRAINT fk_handled_department FOREIGN KEY (handled_department_id)
+        REFERENCES departments (id)
+        ON DELETE SET NULL,
+    CONSTRAINT fk_handled_user FOREIGN KEY (handled_user_id)
+        REFERENCES users (id)
+        ON DELETE SET NULL  
+)
