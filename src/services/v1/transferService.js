@@ -29,6 +29,7 @@ const getListByDepId = async(Id) => {
     const query = `
         SELECT
             t.id,
+            doc.document_number AS document_number,
             doc.title AS document_title,
             dep.name AS from_department_name,
             dep.hindi_name AS from_department_hindi_name,
