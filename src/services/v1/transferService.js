@@ -41,28 +41,29 @@ const getListByDepId = async(Id) => {
         JOIN
             departments dep ON t.from_department_id = dep.id
         WHERE 
-            t.to_department_id = $1 AND t.is_acknowledged = false
+            t.to_department_id = $1 AND t.status = 'pending'
         `
-
         const result = await dbClient.query(query, [Id])
         return result.rows || {rows : []}
 }
 
-const updateLogs = async(Id, recivedById) => {
+const updateTransferLog = async(Id, recivedById, type) => {
+
     const query = `
         UPDATE Transfer_logs
         SET
             recived_by = $1,
-            is_acknowledged = TRUE,
+            status = $2,
             acknowledged_date = CURRENT_TIMESTAMP
-        WHERE id = $2 RETURNING *`
+        WHERE id = $3 RETURNING *`
 
-    const result = await dbClient.query(query, [recivedById, Id])
+    const result = await dbClient.query(query, [recivedById, type, Id])
     return result.rows[0]
 }
 
 
-const transferService = {create, getById, getListByDepId, updateLogs}
+
+const transferService = {create, getById, getListByDepId, updateTransferLog}
 
 export default transferService
 

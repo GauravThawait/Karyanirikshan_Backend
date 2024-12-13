@@ -75,11 +75,15 @@ const getListByDepartmentId = asyncHandler( async(req, res) => {
 
 
 const acceptByTransferId = asyncHandler( async(req, res) => {
-    const {Id, userId} = req.body;
+    const {Id, userId, type} = req.body; 
     // here id transfer_logs id
 
-    if(Id === undefined || Id == null || Id.trim() ==""){
-        throw new ApiError(400, "Bad request")
+    if([Id, userId].some((item) => item == undefined || item == null || item.trim() == " ")){
+        throw new ApiError(400, "All fields required")
+    }
+
+    if(type !== "accepted" && type !== "declined"){
+        throw new ApiError(400, "Invalid request input")
     }
 
     const validTransferReq = await transferService.getById(Id)
@@ -98,7 +102,7 @@ const acceptByTransferId = asyncHandler( async(req, res) => {
         throw new ApiError(403, "Invalid access to content")
     }
 
-    const data = await transferService.updateLogs(Id, userId)
+    const data = await transferService.updateTransferLog(Id, userId, type)
 
     const updateDocument = await documentService.updateCurrentDepartment(validTransferReq.to_department_id, validTransferReq.document_id)
     

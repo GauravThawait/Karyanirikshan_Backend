@@ -71,6 +71,9 @@ WHEN (NEW.document_number IS NULL OR NEW.document_number = '')
 EXECUTE FUNCTION generate_document_number();
 
 
+-- Step 1: Create the ENUM type for status of transfer logs
+CREATE TYPE transfer_logs_status AS ENUM ('pending', 'accepted', 'declined');
+
 CREATE TABLE Transfer_Logs(
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),               
     document_id UUID NOT NULL,                   
@@ -79,8 +82,8 @@ CREATE TABLE Transfer_Logs(
     forwarded_by UUID NOT NULL,
     recived_by UUID,              
     forward_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP, 
-    is_acknowledged BOOLEAN DEFAULT FALSE,      -- Acknowledgment status (true = received, false = pending)
-    acknowledged_date TIMESTAMP,                -- Date and time of acknowledgment
+    status transfer_logs_status DEFAULT 'pending',      
+    acknowledged_date TIMESTAMP,                
     remarks TEXT,                               -- Optional remarks for the forwarding action
     CONSTRAINT fk_document FOREIGN KEY (document_id)
         REFERENCES documents (id)      -- References a Documents table
@@ -100,12 +103,16 @@ CREATE TABLE Transfer_Logs(
 );
 
 
+-- Step 1: Create the ENUM type for departments type
+CREATE TYPE document_logs_status AS ENUM ('completed', 'pending');
+
 CREATE TABLE document_logs(
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     document_id UUID NOT NULL,
     handled_department_id UUID NOT NULL,
     handled_user_id UUID NOT NULL,
     action TEXT NOT NULL,
+    status document_logs_status NOT NULL DEFAULT 'pending',
     remark TEXT,
     timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT fk_document FOREIGN KEY (document_id)
