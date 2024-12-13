@@ -1,4 +1,5 @@
 import departmentService from "../../services/v1/departmentService.js";
+import documentLogService from "../../services/v1/documentLogService.js";
 import documentService from "../../services/v1/documentService.js";
 import transferService from "../../services/v1/transferService.js";
 import userService from "../../services/v1/userService.js";
@@ -105,8 +106,15 @@ const acceptByTransferId = asyncHandler( async(req, res) => {
     const data = await transferService.updateTransferLog(Id, userId, type)
 
     const updateDocument = await documentService.updateCurrentDepartment(validTransferReq.to_department_id, validTransferReq.document_id)
+
+    const updateDocumentLogs = await documentLogService.create(
+        validTransferReq.document_id,
+        validUser.department_id,
+        validUser.id,
+        "दस्तावेज प्राप्त"
+    )
     
-    if(!data || !updateDocument){
+    if(!data || !updateDocument || !updateDocumentLogs){
         throw new ApiError(500, "Internal Server Error")
     }
 

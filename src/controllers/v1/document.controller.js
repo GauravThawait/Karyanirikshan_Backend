@@ -5,6 +5,7 @@ import documentService from "../../services/v1/documentService.js";
 import transferService from "../../services/v1/transferService.js";
 import departmentService from "../../services/v1/departmentService.js";
 import userService from "../../services/v1/userService.js";
+import documentLogService from "../../services/v1/documentLogService.js";
 
 const createDocument = asyncHandler( async(req, res) => {
 
@@ -67,7 +68,14 @@ const createDocument = asyncHandler( async(req, res) => {
         data.created_by               //created by user
     )
 
-    if(!data || !createTranfer){
+    const updateDocumentLog = await documentLogService.create(
+        data.id,
+        data.current_department,
+        data.created_by,
+        "दस्तावेज पंजीकृत"
+    )
+
+    if(!data || !createTranfer || !updateDocumentLog){
         throw new ApiError(500, "Internal Server Error")
     }
 
@@ -86,7 +94,7 @@ const getAllList = asyncHandler( async(req, res)=> {
 
 
 const getDocumentById = asyncHandler( async(req, res) => {
-
+    //here id is document_id
     const{Id} = req.params; 
 
     if(Id === undefined || Id === null || Id.trim() === ""){
@@ -94,10 +102,14 @@ const getDocumentById = asyncHandler( async(req, res) => {
     }
 
     const data = await documentService.getById(Id)
+    const docLogs = await documentLogService.getLogsByDocId(Id)
 
-    if(!data){
+    if(!data || !docLogs){
         return res.status(200).json(new ApiResponse(200, [], "No Data found"))
     }
+
+    //attaching logs with data
+    data.logs = docLogs;
     
     return res.status(200).json(new ApiResponse(200, data, "Data found successfully"))
 })
