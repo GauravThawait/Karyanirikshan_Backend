@@ -7,5 +7,6 @@ router.route("/create").post(createDocument)
 router.route("/getlist").get(getAllList)
 router.route("/get/:Id").get(getDocumentById)
 router.route("/delete/:Id").get(deleteDocumentById)
+router.route("/dispose/:Id").post()
 
 export default router

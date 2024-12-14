@@ -127,7 +127,21 @@ const updateCurrentDepartment = async(documentId, currentDepartmentId) => {
     return result.rows[0]
 }
 
+const updateStatus = async(documentId) => {
+    const query = ` 
+        UPDATE documents
+            SET
+                status = 'completed'
+        WHERE 
+            id = $1
+        RETURNING * `
+    
+    const result = await dbClient.query(query, [documentId])
+
+    return result.rows[0]
+}
 
 
-const documentService = {create, getAllList, getById, deleteById, updateCurrentDepartment}
+
+const documentService = {create, getAllList, getById, deleteById, updateCurrentDepartment, updateStatus}
 export default documentService

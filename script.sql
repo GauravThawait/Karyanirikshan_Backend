@@ -125,3 +125,31 @@ CREATE TABLE document_logs(
         REFERENCES users (id)
         ON DELETE SET NULL  
 )
+
+CREATE TYPE work_status AS ENUM ('completed', 'pending');
+
+CREATE TABLE Work_status (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    document_id UUID NOT NULL,
+    department_id UUID NOT NULL,
+    accepted_by_id UUID NOT NULL,
+    accepted_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    completed_by_id UUID,
+    completed_time TIMESTAMP,
+    status work_status DEFAULT 'pending',
+    timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    register_document_number VARCHAR(50),
+
+    CONSTRAINT fk_document FOREIGN KEY (document_id)
+        REFERENCES documents(id)
+        ON DELETE CASCADE,
+    CONSTRAINT fk_department_id FOREIGN KEY (department_id)
+        REFERENCES departments (id)
+        ON DELETE SET NULL,
+    CONSTRAINT fk_accepted_by_id FOREIGN KEY (accepted_by_id)
+        REFERENCES users (id)
+        ON DELETE SET NULL
+    CONSTRAINT fk_completed_by_id FOREIGN KEY (completed_by_id)
+        REFERENCES users (id)
+        ON DELETE SET NULL
+)

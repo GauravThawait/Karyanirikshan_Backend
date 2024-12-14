@@ -3,6 +3,7 @@ import documentLogService from "../../services/v1/documentLogService.js";
 import documentService from "../../services/v1/documentService.js";
 import transferService from "../../services/v1/transferService.js";
 import userService from "../../services/v1/userService.js";
+import workstatusService from "../../services/v1/workstatusService.js";
 import { ApiError } from "../../utils/ApiError.js";
 import { ApiResponse } from "../../utils/ApiResponse.js";
 import { asyncHandler } from "../../utils/asyncHandler.js";
@@ -105,16 +106,22 @@ const acceptByTransferId = asyncHandler( async(req, res) => {
 
     const data = await transferService.updateTransferLog(Id, userId, type)
 
+    const createWorkForDepartment = await workstatusService.create(
+        data.document_id,           //document id
+        data.to_department_id,      //department Id where work is recived and opened
+        data.recived_by,            //who created the work for its department
+    )
+
     const updateDocument = await documentService.updateCurrentDepartment(validTransferReq.to_department_id, validTransferReq.document_id)
 
     const updateDocumentLogs = await documentLogService.create(
         validTransferReq.document_id,
         validUser.department_id,
         validUser.id,
-        "दस्तावेज प्राप्त"
+        `दस्तावेज प्राप्त`
     )
     
-    if(!data || !updateDocument || !updateDocumentLogs){
+    if(!data || !createWorkForDepartment || !updateDocument || !updateDocumentLogs ){
         throw new ApiError(500, "Internal Server Error")
     }
 

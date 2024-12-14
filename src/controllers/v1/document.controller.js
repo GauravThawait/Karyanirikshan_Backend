@@ -68,14 +68,21 @@ const createDocument = asyncHandler( async(req, res) => {
         data.created_by               //created by user
     )
 
-    const updateDocumentLog = await documentLogService.create(
+    const updateLog1 = await documentLogService.create(
         data.id,
         data.current_department,
         data.created_by,
-        "दस्तावेज पंजीकृत"
+        "दस्तावेज पंजीकृत "
     )
 
-    if(!data || !createTranfer || !updateDocumentLog){
+    const updateLog2 = await documentLogService.create(
+        data.id,
+        data.current_department,
+        data.created_by,
+        `दस्तावेज ${validDepartment.hindi_name} भेजा गया`
+    )
+
+    if(!data || !createTranfer || !updateLog1 || !updateLog2){
         throw new ApiError(500, "Internal Server Error")
     }
 
@@ -131,4 +138,38 @@ const deleteDocumentById = asyncHandler( async(req, res)=> {
 
 })
 
-export {createDocument, getAllList, getDocumentById, deleteDocumentById}
+
+const disposeDocument = asyncHandler(async(req, res) => {
+    const {Id, userId, remark} = req.body;   // here Id is document Id
+
+    if([Id, userId].some((item => item === undefined || item === null || item.trim() === " "))){
+        throw new ApiError(400, "Invalid user inputs")
+    }
+
+    const validDocument = await documentService.getById(Id);
+    const validUser = await userService.getUserById(userId)
+
+    if(!validDocument || !validUser){
+        throw new ApiError(400, "Bad Request")
+    }
+
+    const data = await documentService.updateStatus(Id)
+
+    const updateLogs = await documentLogService.create(
+        data.id,                        //document Id
+        validUser.departmentId,          // department Id of the users which perform action
+        validUser.id,                    // usrer id which performed action
+        "दस्तावेज कार्य सपूर्ण",
+        remark
+    )
+
+    if(!data || !updateLogs){
+        throw new ApiError(500, "Internal Server Error")
+    }
+
+    return res.status(200).json(new ApiResponse(200, data, "Document disposed successfully"))
+    
+
+})
+
+export {createDocument, getAllList, getDocumentById, deleteDocumentById, disposeDocument}

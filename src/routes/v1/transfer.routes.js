@@ -4,7 +4,6 @@ import { acceptByTransferId, createTransferReq, getListByDepartmentId } from "..
 
 const router = Router()
 
-
 router.route("/create").post(createTransferReq)
 router.route("/getlist/:Id").get(getListByDepartmentId)
 router.route("/submit").post(acceptByTransferId)
