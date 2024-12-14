@@ -84,9 +84,10 @@ const getById = async(Id) => {
         doc.priority,
         doc.grade,
         doc.tags,
-        doc.current_department,
-        reg.name AS register_name,
+        dep_current.hindi_name AS current_department_hindi_name,
+        reg.hindi_name AS register_hindi_name,
         dep.name AS department_name,
+        dep.hindi_name AS department_hindi_name,
         u.name AS created_by
     FROM 
         documents doc
@@ -94,6 +95,8 @@ const getById = async(Id) => {
         registers reg ON doc.register_id = reg.id
     JOIN
         departments dep ON doc.department_id = dep.id
+    JOIN
+        departments dep_current ON doc.current_department = dep_current.id
     JOIN
         users u ON doc.created_by = u.id
     WHERE
