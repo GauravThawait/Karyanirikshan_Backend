@@ -73,7 +73,6 @@ const login = asyncHandler( async(req, res)=> {
     )
 })
 
-
 const logout = asyncHandler(async(req, res) => {
 
     return res.status(200)

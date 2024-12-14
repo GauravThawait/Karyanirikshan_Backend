@@ -34,7 +34,7 @@ const getUserWithDepartment = async(userId) => {
         FROM
             users
         JOIN 
-            departments ON users.department_id = department_id
+            departments ON users.department_id = departments.id
         WHERE
             users.id = $1
         `;

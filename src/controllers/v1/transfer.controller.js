@@ -55,9 +55,9 @@ const getListByDepartmentId = asyncHandler( async(req, res) => {
         throw new ApiError(400, "Bad request")
     }
 
-    const findTransferLog = await departmentService.getById(Id)
+    const findDepartment = await departmentService.getById(Id)
 
-    if(!findTransferLog){
+    if(!findDepartment){
         throw new ApiError(400, "Invalid Request Credentials")
     }
 
@@ -74,7 +74,6 @@ const getListByDepartmentId = asyncHandler( async(req, res) => {
     return res.status(200).json(new ApiResponse(200, data, "Data found successfull"))
 
 })
-
 
 const acceptByTransferId = asyncHandler( async(req, res) => {
     const {Id, userId, type} = req.body; 
@@ -130,3 +129,4 @@ const acceptByTransferId = asyncHandler( async(req, res) => {
 
 
 export {createTransferReq, getListByDepartmentId, acceptByTransferId}
+
