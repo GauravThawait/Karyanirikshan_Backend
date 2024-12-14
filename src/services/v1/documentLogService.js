@@ -16,14 +16,14 @@ const create = async(documentId, handledDepartmentId, handledUserId, action, rem
         return result.rows[0]
 }
 
-const getLogsByDocId = async(Id) => {
+const getByDocId = async(Id) => {
     const query = `
         SELECT 
             dl.id,
             dl.document_id,
             doc.document_number,
-            dep.hindi_name AS department_hindi_name,
-            u.name AS handled_user,
+            dep.hindi_name AS Handled_department_hindi_name,
+            u.name AS handled_user_name,
             dl.action,
             dl.timestamp,
             dl.remark 
@@ -45,5 +45,5 @@ const getLogsByDocId = async(Id) => {
     return result.rows || {rows :[]}
 }
 
-const documentLogService = {create, getLogsByDocId}
+const documentLogService = {create, getByDocId}
 export default documentLogService

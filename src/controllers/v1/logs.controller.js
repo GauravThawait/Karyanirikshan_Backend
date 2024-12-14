@@ -1,3 +1,4 @@
+import dbClient from "../../db/connectDb.js";
 import departmentService from "../../services/v1/departmentService.js";
 import documentLogService from "../../services/v1/documentLogService.js";
 import documentService from "../../services/v1/documentService.js";
@@ -39,5 +40,26 @@ const createLog = asyncHandler( async(req, res) => {
     return res.status(201).json(new ApiResponse(201, data, "Log Created Successfully"))
 })
 
+const getLogByDocumentId = asyncHandler( async(req, res) => {
+    const {Id} = req.params;
 
-export {createLog}
+    if(Id === undefined || Id === null || Id.trim() === " "){
+        throw new ApiError(400, "All fields required")
+    }
+
+    const validDocument = await documentService.getById(Id)
+    
+    if(!validDocument){
+        throw new ApiError(400, "Invalid User Input")
+    }
+
+    const data = await documentLogService.getByDocId(Id)
+
+    if(!data){
+        return res.status(200).json(new ApiResponse(200, [], "No data found"))
+    }
+
+    return res.status(200).json(new ApiResponse(200, data, "Logs Found Successfully"))
+})
+
+export {createLog, getLogByDocumentId}

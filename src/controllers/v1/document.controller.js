@@ -102,14 +102,14 @@ const getDocumentById = asyncHandler( async(req, res) => {
     }
 
     const data = await documentService.getById(Id)
-    const docLogs = await documentLogService.getLogsByDocId(Id)
+    // const docLogs = await documentLogService.getLogsByDocId(Id)
 
-    if(!data || !docLogs){
+    if(!data){
         return res.status(200).json(new ApiResponse(200, [], "No Data found"))
     }
 
-    //attaching logs with data
-    data.logs = docLogs;
+    // //attaching logs with data
+    // data.logs = docLogs;
     
     return res.status(200).json(new ApiResponse(200, data, "Data found successfully"))
 })
