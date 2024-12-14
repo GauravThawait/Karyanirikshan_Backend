@@ -73,4 +73,17 @@ const login = asyncHandler( async(req, res)=> {
     )
 })
 
-export {registerUser, login}
+
+const logout = asyncHandler(async(req, res) => {
+
+    return res.status(200)
+            .cookie("token", "",{
+                httpOnly: true,
+                secure: true,
+                sameSite: 'strict',
+                expires: new Date(0),
+            })
+            .json(new ApiResponse(200, [], "Logout Successfully"))
+})
+
+export {registerUser, login, logout}
