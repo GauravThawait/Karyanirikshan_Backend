@@ -6,6 +6,7 @@ import transferService from "../../services/v1/transferService.js";
 import departmentService from "../../services/v1/departmentService.js";
 import userService from "../../services/v1/userService.js";
 import documentLogService from "../../services/v1/documentLogService.js";
+import categoryService from "../../services/v1/categoryService.js";
 
 const createDocument = asyncHandler( async(req, res) => {
 
@@ -19,7 +20,8 @@ const createDocument = asyncHandler( async(req, res) => {
         priority, 
         grade, 
         tags, 
-        currentDeprtmentId //at the time of creation this id is users department id which registered document
+        currentDeprtmentId, //at the time of creation this id is users department id which registered document
+        categoryId
     } = req.body
 
     const status = "created"
@@ -46,6 +48,19 @@ const createDocument = asyncHandler( async(req, res) => {
         throw new ApiError(400, "Invalid Request")
     }
 
+    //this logic for complaint section doc creation
+    if(validDepartment.name === "Complaint"){
+        if(!categoryId){
+            throw new ApiError(400, "All fields required")
+        }
+
+        const validCategory = await categoryService.getById(categoryId)
+
+        if(!validCategory){
+            throw new ApiError(400, "Invalid Request")
+        }
+    }
+
     const data = await documentService.create(
         registerId, 
         dispatchDocNumber, 
@@ -57,7 +72,8 @@ const createDocument = asyncHandler( async(req, res) => {
         priority, 
         grade, 
         tags, 
-        currentDeprtmentId
+        currentDeprtmentId,
+        categoryId
     )
 
     // this function create a transfer req. of document when document is created
@@ -140,26 +156,26 @@ const deleteDocumentById = asyncHandler( async(req, res)=> {
 
 
 const disposeDocument = asyncHandler(async(req, res) => {
-    const {Id, userId, remark} = req.body;   // here Id is document Id
+    const {documentId, userId, remark} = req.body;   // here Id is document Id
 
-    if([Id, userId].some((item => item === undefined || item === null || item.trim() === " "))){
+    if([documentId, userId].some((item => item === undefined || item === null || item.trim() === " "))){
         throw new ApiError(400, "Invalid user inputs")
     }
 
-    const validDocument = await documentService.getById(Id);
+    const validDocument = await documentService.getById(documentId);
     const validUser = await userService.getUserById(userId)
 
     if(!validDocument || !validUser){
         throw new ApiError(400, "Bad Request")
     }
 
-    const data = await documentService.updateStatus(Id)
+    const data = await documentService.updateStatus(documentId)
 
     const updateLogs = await documentLogService.create(
         data.id,                        //document Id
         validUser.departmentId,          // department Id of the users which perform action
         validUser.id,                    // usrer id which performed action
-        "दस्तावेज कार्य सपूर्ण",
+        "दस्तावेज कार्य सम्पूर्ण",
         remark
     )
 

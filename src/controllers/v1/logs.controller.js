@@ -1,4 +1,3 @@
-import dbClient from "../../db/connectDb.js";
 import departmentService from "../../services/v1/departmentService.js";
 import documentLogService from "../../services/v1/documentLogService.js";
 import documentService from "../../services/v1/documentService.js";

@@ -33,7 +33,7 @@ const updateStatus = asyncHandler( async(req, res) => {
         validDocument.id,
         validUser.department_id,
         validUser.id,
-        `दस्तावेज कार्य ${department.hindi_name} विभाग द्वारा पूर्ण`,
+        `दस्तावेज कार्य ${department.hindi_name} द्वारा पूर्ण`,
         remark
     )
 

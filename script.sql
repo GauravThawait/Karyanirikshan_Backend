@@ -45,10 +45,12 @@ CREATE TABLE documents (
     grade VARCHAR(50),                                                -- Document grade
     tags TEXT[],                                                      -- Tags as an array of text
     current_department UUID NOT NULL,
+    category_id UUID,
     FOREIGN KEY (register_id) REFERENCES registers(id),                                 -- Reference to departments table
     FOREIGN KEY (department_id) REFERENCES departments(id),
     FOREIGN KEY (created_by) REFERENCES users(id),                    -- Foreign key to users table
-    FOREIGN KEY (current_department) REFERENCES departments(id)       -- Foreign key to departments table
+    FOREIGN KEY (current_department) REFERENCES departments(id),       -- Foreign key to departments table
+    FOREIGN KEY (category_id) REFERENCES category(id)
 );
 
 -- Sequence for auto-incrementing document numbers

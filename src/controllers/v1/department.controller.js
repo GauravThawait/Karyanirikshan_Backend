@@ -2,7 +2,7 @@ import { ApiError } from "../../utils/ApiError.js";
 import { asyncHandler } from "../../utils/asyncHandler.js";
 import departmentService from '../../services/v1/departmentService.js'
 import { ApiResponse } from "../../utils/ApiResponse.js";
-import documentService from "../../services/v1/documentService.js";
+
 
 const createDepartment = asyncHandler( async(req, res) => {
     
@@ -35,7 +35,6 @@ const getByType = asyncHandler( async(req, res) => {
     }
 
     const data = await departmentService.getListByType(type)
-
     if(!data){
         throw new ApiError(500, "Internal Server error or No data found")
     }

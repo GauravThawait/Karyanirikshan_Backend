@@ -12,6 +12,7 @@ const create = async(
         grade, 
         tags, 
         currentDeprtmentId,
+        categoryId
 ) => {
 
     const query = `
@@ -27,9 +28,10 @@ const create = async(
             priority, 
             grade, 
             tags, 
-            current_department
+            current_department,
+            category_id
          )
-            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
+            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
             RETURNING *
         `
 
@@ -44,7 +46,8 @@ const create = async(
             priority, 
             grade, 
             tags, 
-            currentDeprtmentId
+            currentDeprtmentId,
+            categoryId
         ])
 
         return result.rows[0]
@@ -65,7 +68,8 @@ const getAllList = async() => {
             documents d
         JOIN 
             departments dep ON d.department_id = dep.id
-        `
+        ORDER BY
+            d.created_at DESC `
 
     const result = await dbClient.query(query)
     return result || {rows : []}
