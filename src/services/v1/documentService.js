@@ -146,6 +146,29 @@ const updateStatus = async(documentId) => {
 }
 
 
+const getDocByDeptId = async(departmentId) => {
+    const query = `
+        SELECT 
+            d.id,
+            d.document_number,
+            d.created_at,
+            d.title,
+            d.status,
+            dep.name AS department_name,
+            dep.hindi_name AS department_hindi_name
+        FROM
+            documents d
+        JOIN 
+            departments dep ON d.department_id = dep.id
+        WHERE 
+            d.department_id = $1
+        ORDER BY
+            d.created_at DESC `
 
-const documentService = {create, getAllList, getById, deleteById, updateCurrentDepartment, updateStatus}
+    const result = await dbClient.query(query, [departmentId])
+    return result.rows || {rows : []}
+}
+
+
+const documentService = {create, getAllList, getById, deleteById, updateCurrentDepartment, updateStatus, getDocByDeptId}
 export default documentService

@@ -106,7 +106,32 @@ const createDocument = asyncHandler( async(req, res) => {
 })
 
 
-const getAllList = asyncHandler( async(req, res)=> {
+const getAllList = asyncHandler( async(req, res)=> { // for getting all and deparmtnet wise list
+
+    const {departmentId} = req.body;  //department Id
+
+    if(departmentId){  // id passed than
+
+        if(departmentId === undefined || departmentId === null || departmentId.trim() === ""){
+            throw new ApiError(400, "Invalid Request")
+        }
+
+        const validDepartment = await departmentService.getById(departmentId)
+
+        if(!validDepartment){
+            throw new ApiError(400, "Bad request")
+        }
+
+        const data = await documentService.getDocByDeptId(departmentId)
+
+        if(!data){
+            return res.status(200).json(new ApiResponse(200, [], "No data found"))
+        }
+
+        return res.status(200).json(new ApiResponse(200, data, "Data found successfull"))
+    }
+
+    //if not passed than all data
     const data = await documentService.getAllList()
     if(!data){
         return res.status(200).json(new ApiResponse(200, [], "No data found"))

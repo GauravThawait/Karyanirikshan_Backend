@@ -4,7 +4,7 @@ import { createDocument, deleteDocumentById, disposeDocument, getAllList, getDoc
 const router = Router()
 
 router.route("/create").post(createDocument)
-router.route("/getlist").get(getAllList)
+router.route("/getlist").post(getAllList)
 router.route("/get/:Id").get(getDocumentById)
 router.route("/delete/:Id").get(deleteDocumentById)
 router.route("/dispose").post(disposeDocument)
