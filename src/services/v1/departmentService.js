@@ -20,11 +20,11 @@ const create = async(name, hindi_name, type) => {
     return result.rows[0]
 }
 
-
 const getListByType = async(type) => {
-    const query = `SELECT * from departments WHERE type = $1`
+    const query = `SELECT * from departments WHERE type = $1 ORDER BY name ASC`
     const result = await dbClient.query(query, [type])
     return result.rows || {rows : []}
 }
+
 const departmentService = {getById, getByName, create, getListByType}
 export default departmentService

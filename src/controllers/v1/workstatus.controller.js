@@ -26,7 +26,6 @@ const updateStatus = asyncHandler( async(req, res) => {
     //     throw new ApiError(403, "Invalid access to content")
     // }
 
-
     const data = await workstatusService.update(validDocument.id, validUser.id)
 
     const updateLogs = await documentLogService.create(
