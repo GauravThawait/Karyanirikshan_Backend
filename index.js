@@ -20,5 +20,5 @@ app.get("/", (req, res) => {
 app.listen(process.env.PORT || 8000, () => {
     console.log(`Server listening on PORT ${process.env.PORT}`)
 })
-// Export the handler for AWS Lambda-test
+// Export the handler for AWS 
 export const handler = serverless(app);
