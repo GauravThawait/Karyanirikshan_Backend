@@ -52,4 +52,5 @@ const getListByDeptId = asyncHandler( async(req, res) => {
     return res.status(200).json(new ApiResponse(200, data, "Data found successfull"))
 })
 
+
 export {registerCategory, getListByDeptId}
