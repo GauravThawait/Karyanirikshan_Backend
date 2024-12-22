@@ -198,7 +198,7 @@ const disposeDocument = asyncHandler(async(req, res) => {
 
     const updateLogs = await documentLogService.create(
         data.id,                        //document Id
-        validUser.departmentId,          // department Id of the users which perform action
+        validUser.department_id,          // department Id of the users which perform action
         validUser.id,                    // usrer id which performed action
         "दस्तावेज कार्य सम्पूर्ण",
         remark
