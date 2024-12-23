@@ -161,8 +161,10 @@ const getDocByDeptId = async(departmentId) => {
             documents d
         JOIN 
             departments dep ON d.department_id = dep.id
+        JOIN
+            work_status w ON w.document_id = d.id
         WHERE 
-            d.department_id = $1
+            w.department_id = $1
         ORDER BY
             d.created_at DESC `
 

@@ -32,6 +32,19 @@ const createTransferReq = asyncHandler( async(req, res) => {
         throw new ApiError(400, "Bad request")
     }
 
+    if(isUser.department_id !== checkDocument.current_department){
+        throw new ApiError(403, "Invalid access to content")
+    }
+
+    const updateWorkStatusbyDepartment = await workstatusService.update(checkDocument.id, isUser.id)
+
+    const updateLog1 = await documentLogService.create(
+        checkDocument.id,
+        isUser.department_id,
+        isUser.id,
+        `दस्तावेज कार्य ${validFormDepartment.hindi_name} द्वारा पूर्ण`,
+    )
+
     const data = await transferService.create(
         documentId, 
         fromDepartmentId, 
@@ -40,14 +53,14 @@ const createTransferReq = asyncHandler( async(req, res) => {
         remarks
     )
 
-    const updateLog1 = await documentLogService.create(
+    const updateLog2 = await documentLogService.create(
         checkDocument.id,
         validToDepartment.id,
         isUser.id,
         `दस्तावेज ${validToDepartment.hindi_name} भेजा गया`
     )
 
-    if(!data || !updateLog1){
+    if(!updateWorkStatusbyDepartment || !updateLog1 || !data || !updateLog2){
         throw new ApiError(500, "Internal Server Error")
     }
 
