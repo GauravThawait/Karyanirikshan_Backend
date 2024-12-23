@@ -88,6 +88,7 @@ const getById = async(Id) => {
         doc.priority,
         doc.grade,
         doc.tags,
+        doc.current_department,
         dep_current.hindi_name AS current_department_hindi_name,
         reg.hindi_name AS register_hindi_name,
         dep.name AS department_name,
