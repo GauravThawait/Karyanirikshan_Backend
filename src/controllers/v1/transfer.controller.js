@@ -40,7 +40,14 @@ const createTransferReq = asyncHandler( async(req, res) => {
         remarks
     )
 
-    if(!data){
+    const updateLog1 = await documentLogService.create(
+        checkDocument.id,
+        validToDepartment.id,
+        isUser.id,
+        `दस्तावेज ${validToDepartment.hindi_name} भेजा गया`
+    )
+
+    if(!data || !updateLog1){
         throw new ApiError(500, "Internal Server Error")
     }
 
