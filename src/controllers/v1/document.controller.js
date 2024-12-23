@@ -194,7 +194,7 @@ const disposeDocument = asyncHandler(async(req, res) => {
         throw new ApiError(400, "Bad Request")
     }
 
-    const data = await documentService.updateStatus(documentId)
+    const data = await documentService.updateStatus(documentId, "completed")
 
     const updateLogs = await documentLogService.create(
         data.id,                        //document Id

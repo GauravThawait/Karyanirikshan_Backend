@@ -132,11 +132,11 @@ const updateCurrentDepartment = async(documentId, currentDepartmentId) => {
     return result.rows[0]
 }
 
-const updateStatus = async(documentId) => {
+const updateStatus = async(documentId, status) => {
     const query = ` 
         UPDATE documents
             SET
-                status = 'completed'
+                status = ${status}
         WHERE 
             id = $1
         RETURNING * `
