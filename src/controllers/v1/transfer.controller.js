@@ -110,9 +110,9 @@ const acceptByTransferId = asyncHandler( async(req, res) => {
         data.to_department_id,      //department Id where work is recived and opened
         data.recived_by,            //who created the work for its department
     )
+ 
 
     const updateDocument = await documentService.updateCurrentDepartment(validTransferReq.to_department_id, validTransferReq.document_id)
-    
     const updateStatus = await documentService.updateStatus(data.document_id, "pending")
 
     const updateDocumentLogs = await documentLogService.create(
@@ -122,7 +122,7 @@ const acceptByTransferId = asyncHandler( async(req, res) => {
         `दस्तावेज प्राप्त`
     )
     
-    if(!data || !createWorkForDepartment || !updateDocument || !updateDocumentLogs || updateStatus ){
+    if(!data || !createWorkForDepartment || !updateDocument || !updateDocumentLogs || !updateStatus ){
         throw new ApiError(500, "Internal Server Error")
     }
 

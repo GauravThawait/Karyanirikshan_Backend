@@ -136,12 +136,12 @@ const updateStatus = async(documentId, status) => {
     const query = ` 
         UPDATE documents
             SET
-                status = ${status}
+                status = $1
         WHERE 
-            id = $1
+            id = $2
         RETURNING * `
     
-    const result = await dbClient.query(query, [documentId])
+    const result = await dbClient.query(query, [status, documentId])
 
     return result.rows[0]
 }
