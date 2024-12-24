@@ -55,7 +55,7 @@ const createTransferReq = asyncHandler( async(req, res) => {
 
     const updateLog2 = await documentLogService.create(
         checkDocument.id,
-        validToDepartment.id,
+        validFormDepartment.id,
         isUser.id,
         `दस्तावेज ${validToDepartment.hindi_name} भेजा गया`
     )
@@ -133,16 +133,22 @@ const acceptByTransferId = asyncHandler( async(req, res) => {
 
     const data = await transferService.updateTransferLog(Id, userId, type)
 
-    const createWorkForDepartment = await workstatusService.create(
-        data.document_id,           //document id
-        data.to_department_id,      //department Id where work is recived and opened
-        data.recived_by,            //who created the work for its department
-    )
- 
+    if( type === 'accepted'){ 
+         const createWorkForDepartment = await workstatusService.create(
+            data.document_id,           //document id
+            data.to_department_id,      //department Id where work is recived and opened
+            data.recived_by,            //who created the work for its department
+        )
 
-    const updateDocument = await documentService.updateCurrentDepartment(validTransferReq.to_department_id, validTransferReq.document_id)
-    const updateStatus = await documentService.updateStatus(data.document_id, "pending")
+        const updateDocument = await documentService.updateCurrentDepartment(validTransferReq.to_department_id, validTransferReq.document_id)
+        const updateStatus = await documentService.updateStatus(data.document_id, "pending")
 
+        if(!createWorkForDepartment || !updateDocument || !updateStatus ){
+            throw new ApiError(500, "Internal Server Error")
+        }
+
+    }
+    
     const updateDocumentLogs = await documentLogService.create(
         validTransferReq.document_id,
         validUser.department_id,
@@ -150,7 +156,7 @@ const acceptByTransferId = asyncHandler( async(req, res) => {
         `${logAction}`
     )
     
-    if(!data || !createWorkForDepartment || !updateDocument || !updateDocumentLogs || !updateStatus ){
+    if(!data || !updateDocumentLogs){
         throw new ApiError(500, "Internal Server Error")
     }
 
