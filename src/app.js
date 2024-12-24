@@ -6,12 +6,24 @@ import helmet from 'helmet'
 
 const app = express()
 
-const corsOptions = {
-    origin : '*',
-    credentials : true,
-    allowedHeaders: ['Content-Type', 'Authorization']
-}
+// Define the allowed origins. Use an environment variable or hardcode in development
+const allowedOrigins = process.env.CLIENT_URL ? process.env.CLIENT_URL.split(',') : [
+    'http://localhost:3000',
+    // Add other allowed origins here if needed
+];
 
+
+const corsOptions = {
+    origin: (origin, callback) => {
+        if (!origin || allowedOrigins.includes(origin)) {
+            callback(null, true);
+        } else {
+            callback(new Error('Not allowed by CORS'));
+        }
+    },
+    credentials: true,
+    allowedHeaders: ['Content-Type', 'Authorization'],
+};
 //middleware
 app.use(express.json())
 app.use(cors(corsOptions))
