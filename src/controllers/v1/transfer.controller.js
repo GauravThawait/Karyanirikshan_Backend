@@ -107,6 +107,14 @@ const acceptByTransferId = asyncHandler( async(req, res) => {
         throw new ApiError(400, "Invalid request input")
     }
 
+    let logAction = '';
+
+    if(type === "accepted"){
+        logAction = 'दस्तावेज प्राप्त'
+    }else {
+       logAction = 'दस्तावेज अप्राप्त'
+    }
+
     const validTransferReq = await transferService.getById(Id)
     
     if(!validTransferReq){
@@ -139,7 +147,7 @@ const acceptByTransferId = asyncHandler( async(req, res) => {
         validTransferReq.document_id,
         validUser.department_id,
         validUser.id,
-        `दस्तावेज प्राप्त`
+        `${logAction}`
     )
     
     if(!data || !createWorkForDepartment || !updateDocument || !updateDocumentLogs || !updateStatus ){

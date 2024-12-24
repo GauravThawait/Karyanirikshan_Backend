@@ -36,6 +36,7 @@ import transferRouterV1 from './routes/v1/transfer.routes.js'
 import logsRouterV1 from './routes/v1/logs.routes.js'
 import workStatusRouterV1 from './routes/v1/workstatus.routes.js'
 import categoryRouterV1 from './routes/v1/category.routes.js'
+import analyticsRouterV1 from './routes/v1/analytics.routes.js'
 
 
 app.use("/api/v1/user", userRouterV1)
@@ -46,6 +47,7 @@ app.use('/api/v1/transfer',transferRouterV1)
 app.use("/api/v1/log", logsRouterV1)
 app.use("/api/v1/workstatus", workStatusRouterV1)
 app.use("/api/v1/category", categoryRouterV1)
+app.use("/api/v1/analytics", analyticsRouterV1)
 
 //Error handler
 app.use(errorHandler);
