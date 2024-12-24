@@ -187,5 +187,24 @@ const getAllStats = async() => {
 
 }
 
-const documentService = {create, getAllList, getById, deleteById, updateCurrentDepartment, updateStatus, getDocByDeptId, getAllStats}
+const getDocumentCount = async() => {
+    const query = `
+        SELECT 
+            EXTRACT(MONTH FROM created_at) AS month,
+            COUNT(*) AS value
+        FROM 
+            documents
+        WHERE 
+            EXTRACT(YEAR FROM created_at) = EXTRACT(YEAR FROM CURRENT_DATE)  -- Filter for the current year
+        GROUP BY 
+            EXTRACT(MONTH FROM created_at)
+        ORDER BY 
+            month `
+
+    const result = await dbClient.query(query)
+
+    return result.rows || []
+}
+
+const documentService = {create, getAllList, getById, deleteById, updateCurrentDepartment, updateStatus, getDocByDeptId, getAllStats, getDocumentCount}
 export default documentService

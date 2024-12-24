@@ -58,7 +58,27 @@ const statsByDepartment = async() => {
     return result.rows || []
 }
 
+const getPercentStatus = async(type) => {
+    const query = `
+        SELECT 
+            ws.department_id,
+            dep.name AS department_name,
+            dep.hindi_name AS department_hindi_name,
+        ROUND((COUNT(CASE WHEN status = $1 THEN 1 END) * 100.0) / COUNT(*)) AS ${type}_percentage
+        FROM 
+            work_status ws
+        JOIN
+            departments dep ON dep.id = ws.department_id
+        GROUP BY 
+            ws.department_id, dep.name, dep.hindi_name
+        ORDER BY
+            ${type}_percentage DESC`
+        
+    const result = await dbClient.query(query, [type])
 
-const workstatusService = {create, update, statsByDepartment, statsByDepartment}
+    return result.rows || []
+}
+
+const workstatusService = {create, update, statsByDepartment, statsByDepartment, getPercentStatus}
 
 export default workstatusService
