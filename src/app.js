@@ -7,7 +7,7 @@ import helmet from 'helmet'
 const app = express()
 
 const corsOptions = {
-    origin : '*',
+    origin : process.env.CLIENT_URL || '*',
     credentials : true,
     allowedHeaders: ['Content-Type', 'Authorization']
 }
