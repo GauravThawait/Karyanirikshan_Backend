@@ -12,7 +12,6 @@ const auth = (req, res, next) => {
         const decode = jwt.verify(token, process.env.TOKEN_SECRET_KEY)
 
         req.user = decode
-        console.log("user ID in auth middleware :", req.user)
         next()
 
     } catch (error) {

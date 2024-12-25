@@ -206,5 +206,28 @@ const getDocumentCount = async() => {
     return result.rows || []
 }
 
-const documentService = {create, getAllList, getById, deleteById, updateCurrentDepartment, updateStatus, getDocByDeptId, getAllStats, getDocumentCount}
+const getDayWiseData = async (month, year) => {
+    const query = `
+        SELECT 
+            DATE(created_at) AS day,
+            COUNT(CASE WHEN status = 'pending' THEN 1 END) AS pending_count,
+            COUNT(CASE WHEN status = 'completed' THEN 1 END) AS completed_count,
+            COUNT(CASE WHEN status != 'completed' AND CURRENT_DATE - created_at > INTERVAL '10 days' THEN 1 END) AS delayed_count
+        FROM 
+            documents
+        WHERE 
+            EXTRACT(MONTH FROM created_at) = $1
+            AND EXTRACT(YEAR FROM created_at) = $2
+        GROUP BY 
+            DATE(created_at)
+        ORDER BY 
+            day;
+    `;
+
+    const result = await dbClient.query(query, [month, year]);
+
+    return result.rows || [];
+};
+
+const documentService = {create, getAllList, getById, deleteById, updateCurrentDepartment, updateStatus, getDocByDeptId, getAllStats, getDocumentCount, getDayWiseData}
 export default documentService

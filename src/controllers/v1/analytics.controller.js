@@ -1,5 +1,6 @@
 import documentService from "../../services/v1/documentService.js";
 import workstatusService from "../../services/v1/workstatusService.js";
+import { ApiError } from "../../utils/ApiError.js";
 import { ApiResponse } from "../../utils/ApiResponse.js";
 import { asyncHandler } from "../../utils/asyncHandler.js";
 
@@ -67,4 +68,41 @@ const docCountStats = asyncHandler( async(req, res) => {
     return res.status(200).json(new ApiResponse(200, data, "Data found successfull"))
 })
 
-export {statsByDepartment, allDocumentStats, statsPercentageByDep, docCountStats}
+const dayWiseData = asyncHandler(async (req, res) => {
+    
+    const { month, year } = req.query;
+
+    if (!month || !year) {
+        throw new ApiError(400, "All fields are required")
+    }
+
+    if(month > 12 || month < 1){
+        throw new ApiError(400, "Bad Request")
+    }
+
+    const data = await documentService.getDayWiseData(month, year);
+
+    if(!data){
+        return res.status(200).json(new ApiResponse(200, [], "No data found"))
+    }
+
+    const response = data.map(item => {
+        const date = new Date(item.day);
+        const formattedDay = new Intl.DateTimeFormat('en-US', {
+            month: 'short',
+            day: 'numeric'
+        }).format(date);
+
+        return {
+            ...item,
+            day: formattedDay
+        };
+    });
+
+    
+    return res.status(200).json(new ApiResponse(200, response, "Data retrieved successfully"));
+
+});
+
+
+export {statsByDepartment, allDocumentStats, statsPercentageByDep, docCountStats, dayWiseData}
