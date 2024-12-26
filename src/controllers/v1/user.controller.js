@@ -52,9 +52,9 @@ const login = asyncHandler( async(req, res)=> {
 
     //for getting all details of user
     const data = await userService.getUserWithDepartment(existUser.id)
-    
-    const token = generateToken(existUser.id)
 
+    const token = generateToken(existUser.id)
+ 
     const options = {
         httpOnly : true,
         secure : true,
@@ -74,7 +74,7 @@ const login = asyncHandler( async(req, res)=> {
 })
 
 const logout = asyncHandler(async(req, res) => {
-
+    console.log("log out api hitted")
     return res.status(200)
             .cookie("token", "",{
                 httpOnly: true,

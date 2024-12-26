@@ -229,5 +229,40 @@ const getDayWiseData = async (month, year) => {
     return result.rows || [];
 };
 
-const documentService = {create, getAllList, getById, deleteById, updateCurrentDepartment, updateStatus, getDocByDeptId, getAllStats, getDocumentCount, getDayWiseData}
+const getBydocNum = async(Id) => {
+    const query = `
+    SELECT
+        doc.id,
+        doc.document_number,
+        doc.dispatch_doc_number,
+        doc.title,
+        doc.description,
+        doc.status,
+        doc.priority,
+        doc.grade,
+        doc.tags,
+        doc.current_department,
+        dep_current.hindi_name AS current_department_hindi_name,
+        reg.hindi_name AS register_hindi_name,
+        dep.name AS department_name,
+        dep.hindi_name AS department_hindi_name,
+        u.name AS created_by
+    FROM 
+        documents doc
+    JOIN
+        registers reg ON doc.register_id = reg.id
+    JOIN
+        departments dep ON doc.department_id = dep.id
+    JOIN
+        departments dep_current ON doc.current_department = dep_current.id
+    JOIN
+        users u ON doc.created_by = u.id
+    WHERE
+        doc.document_number = $1
+    `
+    const result = await dbClient.query(query,[Id])
+    return result.rows[0]
+}
+
+const documentService = {create, getAllList, getById, deleteById, updateCurrentDepartment, updateStatus, getDocByDeptId, getAllStats, getDocumentCount, getDayWiseData, getBydocNum}
 export default documentService

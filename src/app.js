@@ -4,29 +4,9 @@ import cookieParser from 'cookie-parser'
 import cors from 'cors'
 import helmet from 'helmet'
 import auth from './middleware/auth.js'
+import corsOptions from './security/cors.js'
 
 const app = express()
-
-
-//this is for dev purpose remove in future
-const allowedOrigins = [
-    process.env.CLIENT_URL_DEV, 
-    process.env.CLIENT_URL_STAGE, 
-    process.env.CLIENT_URL_PROD
-]
-
-const corsOptions = {
-    origin : (origin, callback) => {
-        if(allowedOrigins.includes(origin)){
-            callback(null, true)
-        }
-        else{
-            callback(new Error('Not allowed by CORS'))
-        }
-    },
-    credentials : true,
-    allowedHeaders: ['Content-Type', 'Authorization']
-}
 
 //middleware
 app.use(express.json())
@@ -36,7 +16,7 @@ app.use(express.urlencoded({extended : true, limit: "16kb"}))
 app.use(express.static("public"))
 app.use(cookieParser())
 
-//
+
 app.use(helmet({
     contentSecurityPolicy: false,
     crossOriginEmbedderPolicy: false
