@@ -3,15 +3,15 @@ import jwt from 'jsonwebtoken'
 const auth = (req, res, next) => {
 
     try {
-        const token = req.cookies?.token
+        // const token = req.cookies?.token
 
-        if(!token){
-            throw new ApiError(401, "Authentication token is missing")
-        }
+        // if(!token){
+        //     throw new ApiError(401, "Authentication token is missing")
+        // }
 
-        const decode = jwt.verify(token, process.env.TOKEN_SECRET_KEY)
+        // const decode = jwt.verify(token, process.env.TOKEN_SECRET_KEY)
 
-        req.user = decode
+        // req.user = decode
         next()
 
     } catch (error) {
