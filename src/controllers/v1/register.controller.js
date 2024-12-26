@@ -28,6 +28,7 @@ const registerCreate = asyncHandler( async(req, res) => {
 
 
 const allRegister = asyncHandler( async(req, res) => {
+    console.log("get all register api hitted")
     const data = await  registerService.getAll()
 
     if(!data || data.rows.length == 0 ){
