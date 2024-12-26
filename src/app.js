@@ -39,7 +39,7 @@ import analyticsRouterV1 from './routes/v1/analytics.routes.js'
 app.use("/api/v1/user", userRouterV1)
 app.use("/api/v1/department", auth, departmentRouterV1)
 app.use("/api/v1/register", auth, registerRouterV1)
-app.use('/api/v1/document',documentRouterV1)
+app.use('/api/v1/document', auth, documentRouterV1)
 app.use('/api/v1/transfer', auth, transferRouterV1)
 app.use("/api/v1/log", auth, logsRouterV1)
 app.use("/api/v1/workstatus", auth, workStatusRouterV1)

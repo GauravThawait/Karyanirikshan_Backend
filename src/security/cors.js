@@ -1,8 +1,12 @@
-//this is for dev purpose remove in future
+import dotenv from 'dotenv'
+
+dotenv.config()
+
 const allowedOrigins = [
     process.env.CLIENT_URL_DEV, 
     process.env.CLIENT_URL_STAGE, 
-    process.env.CLIENT_URL_PROD
+    process.env.CLIENT_URL_PROD,
+    process.env.CLIENT_URL_LOCAL
 ]
 
 const corsOptions = {
@@ -17,6 +21,5 @@ const corsOptions = {
     credentials : true,
     allowedHeaders: ['Content-Type', 'Authorization']
 }
-
 
 export default corsOptions
