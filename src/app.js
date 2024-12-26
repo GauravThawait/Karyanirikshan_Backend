@@ -8,7 +8,6 @@ import corsOptions from './security/cors.js'
 
 const app = express()
 
-
 //middleware
 app.use(express.json())
 app.use(cors(corsOptions))
@@ -17,7 +16,7 @@ app.use(express.urlencoded({extended : true, limit: "16kb"}))
 app.use(express.static("public"))
 app.use(cookieParser())
 
-//
+
 app.use(helmet({
     contentSecurityPolicy: false,
     crossOriginEmbedderPolicy: false
