@@ -37,5 +37,4 @@ const allRegister = asyncHandler( async(req, res) => {
     return res.status(200).json(new ApiResponse(200, data.rows, "Data foound Successfully"))
 })
 
-
 export {registerCreate, allRegister}

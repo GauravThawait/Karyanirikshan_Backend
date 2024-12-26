@@ -25,7 +25,7 @@ const createLog = asyncHandler( async(req, res) => {
     if( !validDocument || !validDepartment || !validUser){
         throw new ApiError(400, "Invalid user inputs")
     }
-    console.log("valid document :", validDocument)
+
     if(validDocument.current_department != handledDepartmentId){
         throw new ApiError(403, "Invalid access to content")
     }
@@ -38,6 +38,7 @@ const createLog = asyncHandler( async(req, res) => {
 
     return res.status(201).json(new ApiResponse(201, data, "Log Created Successfully"))
 })
+
 
 const getLogByDocumentId = asyncHandler( async(req, res) => {
     const {Id} = req.params;

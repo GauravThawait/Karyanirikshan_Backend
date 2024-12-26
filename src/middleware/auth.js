@@ -1,6 +1,7 @@
-import { ApiError } from "../utils/ApiError"
+import { ApiError } from "../utils/ApiError.js"
 import jwt from 'jsonwebtoken'
 const auth = (req, res, next) => {
+
     try {
         const token = req.cookies?.token
 
@@ -11,7 +12,6 @@ const auth = (req, res, next) => {
         const decode = jwt.verify(token, process.env.TOKEN_SECRET_KEY)
 
         req.user = decode
-        console.log("user ID in auth middleware :", req.user)
         next()
 
     } catch (error) {

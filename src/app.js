@@ -2,11 +2,28 @@ import express from 'express'
 import errorHandler from './middleware/errorHandler.js'
 import cookieParser from 'cookie-parser'
 import cors from 'cors'
+import helmet from 'helmet'
+import auth from './middleware/auth.js'
 
 const app = express()
 
+
+//this is for dev purpose remove in future
+const allowedOrigins = [
+    process.env.CLIENT_URL_DEV, 
+    process.env.CLIENT_URL_STAGE, 
+    process.env.CLIENT_URL_PROD
+]
+
 const corsOptions = {
-    origin : process.env.CLIENT_URL || '*',
+    origin : (origin, callback) => {
+        if(allowedOrigins.includes(origin)){
+            callback(null, true)
+        }
+        else{
+            callback(new Error('Not allowed by CORS'))
+        }
+    },
     credentials : true,
     allowedHeaders: ['Content-Type', 'Authorization']
 }
@@ -19,6 +36,11 @@ app.use(express.urlencoded({extended : true, limit: "16kb"}))
 app.use(express.static("public"))
 app.use(cookieParser())
 
+//
+app.use(helmet({
+    contentSecurityPolicy: false,
+    crossOriginEmbedderPolicy: false
+}))
 
 
 //import routes
@@ -30,16 +52,18 @@ import transferRouterV1 from './routes/v1/transfer.routes.js'
 import logsRouterV1 from './routes/v1/logs.routes.js'
 import workStatusRouterV1 from './routes/v1/workstatus.routes.js'
 import categoryRouterV1 from './routes/v1/category.routes.js'
+import analyticsRouterV1 from './routes/v1/analytics.routes.js'
 
 
 app.use("/api/v1/user", userRouterV1)
-app.use("/api/v1/department", departmentRouterV1)
-app.use("/api/v1/register", registerRouterV1)
-app.use('/api/v1/document', documentRouterV1)
-app.use('/api/v1/transfer',transferRouterV1)
-app.use("/api/v1/log", logsRouterV1)
-app.use("/api/v1/workstatus", workStatusRouterV1)
-app.use("/api/v1/category", categoryRouterV1)
+app.use("/api/v1/department", auth, departmentRouterV1)
+app.use("/api/v1/register", auth, registerRouterV1)
+app.use('/api/v1/document', auth, documentRouterV1)
+app.use('/api/v1/transfer', auth, transferRouterV1)
+app.use("/api/v1/log", auth, logsRouterV1)
+app.use("/api/v1/workstatus", auth, workStatusRouterV1)
+app.use("/api/v1/category", auth, categoryRouterV1)
+app.use("/api/v1/analytics", auth,  analyticsRouterV1)
 
 //Error handler
 app.use(errorHandler);

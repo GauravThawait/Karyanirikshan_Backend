@@ -32,6 +32,19 @@ const createTransferReq = asyncHandler( async(req, res) => {
         throw new ApiError(400, "Bad request")
     }
 
+    if(isUser.department_id !== checkDocument.current_department){
+        throw new ApiError(403, "Invalid access to content")
+    }
+
+    const updateWorkStatusbyDepartment = await workstatusService.update(checkDocument.id, isUser.id)
+
+    const updateLog1 = await documentLogService.create(
+        checkDocument.id,
+        isUser.department_id,
+        isUser.id,
+        `दस्तावेज कार्य ${validFormDepartment.hindi_name} द्वारा पूर्ण`,
+    )
+
     const data = await transferService.create(
         documentId, 
         fromDepartmentId, 
@@ -40,7 +53,14 @@ const createTransferReq = asyncHandler( async(req, res) => {
         remarks
     )
 
-    if(!data){
+    const updateLog2 = await documentLogService.create(
+        checkDocument.id,
+        validFormDepartment.id,
+        isUser.id,
+        `दस्तावेज ${validToDepartment.hindi_name} भेजा गया`
+    )
+
+    if(!updateWorkStatusbyDepartment || !updateLog1 || !data || !updateLog2){
         throw new ApiError(500, "Internal Server Error")
     }
 
@@ -87,6 +107,14 @@ const acceptByTransferId = asyncHandler( async(req, res) => {
         throw new ApiError(400, "Invalid request input")
     }
 
+    let logAction = '';
+
+    if(type === "accepted"){
+        logAction = 'दस्तावेज प्राप्त'
+    }else {
+       logAction = 'दस्तावेज अप्राप्त'
+    }
+
     const validTransferReq = await transferService.getById(Id)
     
     if(!validTransferReq){
@@ -105,22 +133,30 @@ const acceptByTransferId = asyncHandler( async(req, res) => {
 
     const data = await transferService.updateTransferLog(Id, userId, type)
 
-    const createWorkForDepartment = await workstatusService.create(
-        data.document_id,           //document id
-        data.to_department_id,      //department Id where work is recived and opened
-        data.recived_by,            //who created the work for its department
-    )
+    if( type === 'accepted'){ 
+         const createWorkForDepartment = await workstatusService.create(
+            data.document_id,           //document id
+            data.to_department_id,      //department Id where work is recived and opened
+            data.recived_by,            //who created the work for its department
+        )
 
-    const updateDocument = await documentService.updateCurrentDepartment(validTransferReq.to_department_id, validTransferReq.document_id)
+        const updateDocument = await documentService.updateCurrentDepartment(validTransferReq.to_department_id, validTransferReq.document_id)
+        const updateStatus = await documentService.updateStatus(data.document_id, "pending")
 
+        if(!createWorkForDepartment || !updateDocument || !updateStatus ){
+            throw new ApiError(500, "Internal Server Error")
+        }
+
+    }
+    
     const updateDocumentLogs = await documentLogService.create(
         validTransferReq.document_id,
         validUser.department_id,
         validUser.id,
-        `दस्तावेज प्राप्त`
+        `${logAction}`
     )
     
-    if(!data || !createWorkForDepartment || !updateDocument || !updateDocumentLogs ){
+    if(!data || !updateDocumentLogs){
         throw new ApiError(500, "Internal Server Error")
     }
 

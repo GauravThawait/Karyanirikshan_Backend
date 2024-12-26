@@ -88,6 +88,7 @@ const getById = async(Id) => {
         doc.priority,
         doc.grade,
         doc.tags,
+        doc.current_department,
         dep_current.hindi_name AS current_department_hindi_name,
         reg.hindi_name AS register_hindi_name,
         dep.name AS department_name,
@@ -131,16 +132,16 @@ const updateCurrentDepartment = async(documentId, currentDepartmentId) => {
     return result.rows[0]
 }
 
-const updateStatus = async(documentId) => {
+const updateStatus = async(documentId, status) => {
     const query = ` 
         UPDATE documents
             SET
-                status = 'completed'
+                status = $1
         WHERE 
-            id = $1
+            id = $2
         RETURNING * `
     
-    const result = await dbClient.query(query, [documentId])
+    const result = await dbClient.query(query, [status, documentId])
 
     return result.rows[0]
 }
@@ -160,8 +161,10 @@ const getDocByDeptId = async(departmentId) => {
             documents d
         JOIN 
             departments dep ON d.department_id = dep.id
+        JOIN
+            work_status w ON w.document_id = d.id
         WHERE 
-            d.department_id = $1
+            w.department_id = $1
         ORDER BY
             d.created_at DESC `
 
@@ -169,6 +172,62 @@ const getDocByDeptId = async(departmentId) => {
     return result.rows || {rows : []}
 }
 
+const getAllStats = async() => {
+    const query = `
+        SELECT 
+            COUNT(*) AS total_documents,
+            COUNT(CASE WHEN status = 'pending' OR status = 'created' THEN 1 END) AS pending_documents,
+            COUNT(CASE WHEN status = 'completed' THEN 1 END) AS completed_documents,
+            COUNT(CASE WHEN DATE(created_at) = CURRENT_DATE THEN 1 END) AS today_inserted_documents
+        FROM
+            documents `
+    
+    const result = await dbClient.query(query)
+    return result.rows || []
 
-const documentService = {create, getAllList, getById, deleteById, updateCurrentDepartment, updateStatus, getDocByDeptId}
+}
+
+const getDocumentCount = async() => {
+    const query = `
+        SELECT 
+            EXTRACT(MONTH FROM created_at) AS month,
+            COUNT(*) AS value
+        FROM 
+            documents
+        WHERE 
+            EXTRACT(YEAR FROM created_at) = EXTRACT(YEAR FROM CURRENT_DATE)  -- Filter for the current year
+        GROUP BY 
+            EXTRACT(MONTH FROM created_at)
+        ORDER BY 
+            month `
+
+    const result = await dbClient.query(query)
+
+    return result.rows || []
+}
+
+const getDayWiseData = async (month, year) => {
+    const query = `
+        SELECT 
+            DATE(created_at) AS day,
+            COUNT(CASE WHEN status = 'pending' THEN 1 END) AS pending_count,
+            COUNT(CASE WHEN status = 'completed' THEN 1 END) AS completed_count,
+            COUNT(CASE WHEN status != 'completed' AND CURRENT_DATE - created_at > INTERVAL '10 days' THEN 1 END) AS delayed_count
+        FROM 
+            documents
+        WHERE 
+            EXTRACT(MONTH FROM created_at) = $1
+            AND EXTRACT(YEAR FROM created_at) = $2
+        GROUP BY 
+            DATE(created_at)
+        ORDER BY 
+            day;
+    `;
+
+    const result = await dbClient.query(query, [month, year]);
+
+    return result.rows || [];
+};
+
+const documentService = {create, getAllList, getById, deleteById, updateCurrentDepartment, updateStatus, getDocByDeptId, getAllStats, getDocumentCount, getDayWiseData}
 export default documentService

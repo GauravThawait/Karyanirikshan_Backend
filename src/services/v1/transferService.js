@@ -43,7 +43,8 @@ const getListByDepId = async(Id) => {
             departments dep ON t.from_department_id = dep.id
         WHERE 
             t.to_department_id = $1 AND t.status = 'pending'
-        `
+        ORDER BY
+            forward_date DESC `
         const result = await dbClient.query(query, [Id])
         return result.rows || {rows : []}
 }

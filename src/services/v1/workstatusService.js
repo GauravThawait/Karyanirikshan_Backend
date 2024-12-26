@@ -31,7 +31,54 @@ const update = async(document_id, completed_by_id) => {
     return result.rows
 }
 
-const workstatusService = {create, update}
 
+const statsByDepartment = async() => {
+    const query = `
+        SELECT 
+             ws.department_id,
+             dep.name AS department_name,
+             dep.hindi_name AS department_hindi_name,
+        COUNT(*) AS total_documents,
+        COUNT(CASE WHEN status = 'pending' THEN 1 END) AS pending_documents,
+        COUNT(CASE WHEN status = 'completed' THEN 1 END) AS completed_documents,
+        COUNT(CASE WHEN DATE(timestamp) = CURRENT_DATE THEN 1 END) AS today_inserted_documents,
+            CASE 
+                WHEN COUNT(CASE WHEN status = 'completed' AND DATE(ws.timestamp) = CURRENT_DATE THEN 1 END) > 0 THEN true
+                ELSE false
+            END AS completed_progress
+        FROM 
+            work_status ws
+        JOIN
+            departments dep ON dep.id = ws.department_id
+        GROUP BY 
+            ws.department_id, dep.name, dep.hindi_name `
+    
+    const result = await dbClient.query(query)
+
+    return result.rows || []
+}
+
+const getPercentStatus = async(type) => {
+    const query = `
+        SELECT 
+            ws.department_id,
+            dep.name AS department_name,
+            dep.hindi_name AS department_hindi_name,
+        ROUND((COUNT(CASE WHEN status = $1 THEN 1 END) * 100.0) / COUNT(*)) AS ${type}_percentage
+        FROM 
+            work_status ws
+        JOIN
+            departments dep ON dep.id = ws.department_id
+        GROUP BY 
+            ws.department_id, dep.name, dep.hindi_name
+        ORDER BY
+            ${type}_percentage DESC`
+        
+    const result = await dbClient.query(query, [type])
+
+    return result.rows || []
+}
+
+const workstatusService = {create, update, statsByDepartment, statsByDepartment, getPercentStatus}
 
 export default workstatusService
