@@ -4,29 +4,10 @@ import cookieParser from 'cookie-parser'
 import cors from 'cors'
 import helmet from 'helmet'
 import auth from './middleware/auth.js'
+import corsOptions from './security/cors.js'
 
 const app = express()
 
-
-//this is for dev purpose remove in future
-const allowedOrigins = [
-    process.env.CLIENT_URL_DEV, 
-    process.env.CLIENT_URL_STAGE, 
-    process.env.CLIENT_URL_PROD
-]
-
-const corsOptions = {
-    origin : (origin, callback) => {
-        if(allowedOrigins.includes(origin)){
-            callback(null, true)
-        }
-        else{
-            callback(new Error('Not allowed by CORS'))
-        }
-    },
-    credentials : true,
-    allowedHeaders: ['Content-Type', 'Authorization']
-}
 
 //middleware
 app.use(express.json())
@@ -58,7 +39,7 @@ import analyticsRouterV1 from './routes/v1/analytics.routes.js'
 app.use("/api/v1/user", userRouterV1)
 app.use("/api/v1/department", auth, departmentRouterV1)
 app.use("/api/v1/register", auth, registerRouterV1)
-app.use('/api/v1/document', auth, documentRouterV1)
+app.use('/api/v1/document',documentRouterV1)
 app.use('/api/v1/transfer', auth, transferRouterV1)
 app.use("/api/v1/log", auth, logsRouterV1)
 app.use("/api/v1/workstatus", auth, workStatusRouterV1)

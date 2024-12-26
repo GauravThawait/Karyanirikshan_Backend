@@ -213,4 +213,26 @@ const disposeDocument = asyncHandler(async(req, res) => {
 
 })
 
-export {createDocument, getAllList, getDocumentById, deleteDocumentById, disposeDocument}
+const getDocByNumber = asyncHandler( async(req, res) => {
+    const {Id} = req.params // this expect document number starts with KN
+
+    if(Id === undefined || Id === null || Id.trim() === ""){
+        throw new ApiError(400, "Invalid Request")
+    }
+
+    if(!Id.startsWith("KN")){
+        throw new ApiError(400, "Bad request")
+    }
+
+    const data = await documentService.getBydocNum(Id)
+
+    if(!data){
+        return res.status(200).json(new ApiResponse(200, [], "No data found"))
+    }
+
+    return res.status(200).json(new ApiResponse(200, data, "Data found successfull"))
+})
+
+
+export {createDocument, getAllList, getDocumentById, deleteDocumentById, disposeDocument, getDocByNumber}
+
