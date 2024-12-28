@@ -3,7 +3,8 @@ dotenv.config()
 
 const allowedOrigins = [
     process.env.CLIENT_URL_DEV,
-    process.env.CLIENT_URL_LOCAL, 
+    process.env.CLIENT_URL_LOCAL,
+    process.env.CLIENT_URL_LOAD_BALANCER, 
     process.env.CLIENT_URL_STAGE,
     process.env.CLIENT_URL_PROD
 ]
