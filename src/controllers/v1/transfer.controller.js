@@ -57,7 +57,8 @@ const createTransferReq = asyncHandler( async(req, res) => {
         checkDocument.id,
         validFormDepartment.id,
         isUser.id,
-        `दस्तावेज ${validToDepartment.hindi_name} भेजा गया`
+        `दस्तावेज ${validToDepartment.hindi_name} भेजा गया`,
+        remarks
     )
 
     if(!updateWorkStatusbyDepartment || !updateLog1 || !data || !updateLog2){
