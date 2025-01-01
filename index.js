@@ -20,5 +20,3 @@ app.get("/", (req, res) => {
 app.listen(process.env.PORT || 8000, () => {
     console.log(`Server listening on PORT ${process.env.PORT}`)
 })
-// Export the handler for AWS test for staging triggers.
-export const handler = serverless(app);

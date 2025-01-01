@@ -222,7 +222,7 @@ const getDocByNumber = asyncHandler( async(req, res) => {
         throw new ApiError(400, "Invalid Request")
     }
 
-    if(!Id.startsWith("DN")){
+    if(!Id.startsWith("KN")){
         throw new ApiError(400, "Bad request")
     }
 
