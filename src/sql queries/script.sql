@@ -60,7 +60,7 @@ CREATE SEQUENCE document_number_seq START 1 INCREMENT 1;
 CREATE OR REPLACE FUNCTION generate_document_number() 
 RETURNS TRIGGER AS $$
 BEGIN
-    NEW.document_number := 'KN' || nextval('document_number_seq');
+    NEW.document_number := 'DN' || nextval('document_number_seq');
     RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
