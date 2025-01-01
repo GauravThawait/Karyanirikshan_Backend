@@ -58,7 +58,7 @@ const login = asyncHandler( async(req, res)=> {
     const options = {
         httpOnly : true,
         secure : true,
-        sameSite : 'strict'
+        sameSite : 'none'
     }
 
     delete existUser.password
@@ -74,12 +74,12 @@ const login = asyncHandler( async(req, res)=> {
 })
 
 const logout = asyncHandler(async(req, res) => {
-    console.log("log out api hitted")
+   
     return res.status(200)
             .cookie("token", "",{
                 httpOnly: true,
                 secure: true,
-                sameSite: 'strict',
+                sameSite: 'none',
                 expires: new Date(0),
             })
             .json(new ApiResponse(200, [], "Logout Successfully"))

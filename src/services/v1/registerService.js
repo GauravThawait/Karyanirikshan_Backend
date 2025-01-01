@@ -19,6 +19,12 @@ const getByName = async(name) => {
     return result.rows[0]
 }
 
-const registerService = {create, getAll, getByName}
+const getById = async(Id) => {
+    const query = 'SELECT * FROM registers WHERE id = $1'
+    const result = await dbClient.query(query, [Id])
+    return result.rows[0]
+}
+
+const registerService = {create, getAll, getByName,getById}
 
 export default registerService

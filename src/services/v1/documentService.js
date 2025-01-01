@@ -1,4 +1,5 @@
 import dbClient from "../../db/connectDb.js"
+import { ApiError } from "../../utils/ApiError.js"
 
 const create = async(
         registerId, 
@@ -264,5 +265,74 @@ const getBydocNum = async(Id) => {
     return result.rows[0]
 }
 
-const documentService = {create, getAllList, getById, deleteById, updateCurrentDepartment, updateStatus, getDocByDeptId, getAllStats, getDocumentCount, getDayWiseData, getBydocNum}
+const updateById = async(documentId, updatedFields) => {
+
+    const fields = Object.keys(updatedFields)
+    if(fields.length === 0){
+        throw new ApiError("No fields to update")
+    }
+
+    const setClause = fields.map((field, index) => `${field} = $${index + 2}`).join(", ")
+  
+    const query = ` 
+        UPDATE documents
+            SET ${setClause}
+        WHERE id = $1
+            RETURNING * `
+    
+    const values = [documentId, ...fields.map((field) => updatedFields[field])]
+
+    const result = await dbClient.query(query, values);
+
+    return result.rows[0]
+}
+
+
+//export data in xlsx query 
+
+const exportAllData = async() => {
+    const query = `
+    SELECT
+        doc.document_number AS "दस्तावेज क्रमांक",
+        doc.dispatch_doc_number AS "आवक-जावक क्रमांक",
+        reg.hindi_name AS "रजिस्टर",
+        dep.hindi_name AS "शाखा",
+        doc.title AS "शीर्षक",
+        doc.description AS "विवरण",
+        dep_current.hindi_name AS "वर्त्तमान शाखा",
+        doc.status AS "स्थिति",
+        doc.grade AS "ग्रेड",
+        u.name AS "द्वारा पंजीकृत"
+    FROM 
+        documents doc
+    JOIN
+        registers reg ON doc.register_id = reg.id
+    JOIN
+        departments dep ON doc.department_id = dep.id
+    JOIN
+        departments dep_current ON doc.current_department = dep_current.id
+    JOIN
+        users u ON doc.created_by = u.id
+    `
+
+    const result = await dbClient.query(query)
+
+    return result.rows || []
+}
+
+const documentService = {
+    create, 
+    getAllList, 
+    getById, 
+    deleteById, 
+    updateCurrentDepartment, 
+    updateStatus, 
+    getDocByDeptId, 
+    getAllStats, 
+    getDocumentCount, 
+    getDayWiseData, 
+    getBydocNum,
+    updateById,
+    exportAllData
+}
 export default documentService
