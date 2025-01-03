@@ -189,4 +189,3 @@ const pendingCountByDep = asyncHandler( async(req, res) => {
 
 
 export {createTransferReq, getListByDepartmentId, acceptByTransferId, pendingCountByDep}
-

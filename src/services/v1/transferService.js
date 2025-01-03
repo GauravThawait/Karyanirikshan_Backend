@@ -29,7 +29,7 @@ const getListByDepId = async(Id) => {
     const query = `
         SELECT
             t.id,
-            t.document_id AS document_id
+            t.document_id AS document_id,
             doc.document_number AS document_number,
             doc.title AS document_title,
             t.to_department_id AS to_department_id,
