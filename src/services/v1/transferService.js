@@ -31,8 +31,12 @@ const getListByDepId = async(Id) => {
             t.id,
             doc.document_number AS document_number,
             doc.title AS document_title,
-            dep.name AS from_department_name,
-            dep.hindi_name AS from_department_hindi_name,
+            t.to_department_id AS to_department_id,
+            to_dep.name AS to_department_name,
+            to_dep.hindi_name AS to_department_hindi_name,
+            t.from_department_id AS from_department_id,
+            from_dep.name AS from_department_name,
+            from_dep.hindi_name AS from_department_hindi_name,
             t.forward_date,
             t.remarks
         FROM
@@ -40,7 +44,9 @@ const getListByDepId = async(Id) => {
         JOIN
             documents doc ON t.document_id = doc.id
         JOIN
-            departments dep ON t.from_department_id = dep.id
+            departments from_dep ON t.from_department_id = from_dep.id
+        JOIN
+            departments to_dep ON t.to_department_id = to_dep.id
         WHERE 
             t.to_department_id = $1 AND t.status = 'pending'
         ORDER BY
@@ -63,9 +69,17 @@ const updateTransferLog = async(Id, recivedById, type) => {
     return result.rows[0]
 }
 
+const getCountByDep = async(departmentId) => {
+    const query = `
+        SELECT COUNT(*) AS pending_request_count
+        FROM transfer_logs
+        WHERE to_department_id = $1 AND status = 'pending'`
 
+    const result = await dbClient.query(query, [departmentId])
+    return result.rows || 0
+}
 
-const transferService = {create, getById, getListByDepId, updateTransferLog}
+const transferService = {create, getById, getListByDepId, updateTransferLog, getCountByDep}
 
 export default transferService
 

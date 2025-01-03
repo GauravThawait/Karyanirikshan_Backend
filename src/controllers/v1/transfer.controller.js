@@ -164,6 +164,29 @@ const acceptByTransferId = asyncHandler( async(req, res) => {
     return res.status(200).json(new ApiResponse(200, data, "Document accepted successfully"))
 })
 
+const pendingCountByDep = asyncHandler( async(req, res) => {
 
-export {createTransferReq, getListByDepartmentId, acceptByTransferId}
+    const {Id} = req.params;  // here Id is department Id
+
+    if(Id === undefined || Id === null || Id.trim() === ""){
+        throw new ApiError(400, "Invalid Request")
+    }
+
+    const validDepartment = await departmentService.getById(Id)
+
+    if(!validDepartment){
+        throw new ApiError(400, "Invalid Credentials")
+    }
+
+    const data = await transferService.getCountByDep(Id)
+
+    if(!data){
+        return res.status(200).json(new ApiResponse(200, 0, "No data found"))
+    }
+
+    return res.status(200).json(new ApiResponse(200, data, "Data found Successfully"))
+})
+
+
+export {createTransferReq, getListByDepartmentId, acceptByTransferId, pendingCountByDep}
 
