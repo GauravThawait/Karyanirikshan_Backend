@@ -282,12 +282,19 @@ const updateDocument = asyncHandler( async(req, res) => {
 
     if(departmentId){
         const validDepartment = await departmentService.getById(departmentId)
-    
+
         if(!validDepartment){
             throw new ApiError(400, "Invalid user input")
         }
-    }
 
+        const existValidRequest = await transferService.getLastActiveReq(documentId, departmentId)
+    
+        const RejectExistTransferReq  = await transferService.updateTransferLog(existValidRequest.id, null, "declined")
+
+        if(!RejectExistTransferReq){
+            throw new ApiError(500, "Something error while rejecting existing transfer req")
+        }
+    }
 
     const updatedFields = {
         ...(registerId && { register_id: registerId }),
@@ -302,7 +309,7 @@ const updateDocument = asyncHandler( async(req, res) => {
     };
 
     const data = await documentService.updateById(documentId, updatedFields)
-    
+
     const updatelog = await documentLogService.create(
         documentId,
         validUser.department_id,

@@ -29,6 +29,7 @@ const getListByDepId = async(Id) => {
     const query = `
         SELECT
             t.id,
+            t.document_id AS document_id
             doc.document_number AS document_number,
             doc.title AS document_title,
             t.to_department_id AS to_department_id,
@@ -79,7 +80,20 @@ const getCountByDep = async(departmentId) => {
     return result.rows || 0
 }
 
-const transferService = {create, getById, getListByDepId, updateTransferLog, getCountByDep}
+const getLastActiveReq = async(documentId, toDepartmentId) => {
+    const query = `
+        SELECT * 
+        FROM
+            transfer_logs
+        WHERE document_id = $1 AND to_department_id = $2 AND status ='pending'
+        ORDER BY forward_date DESC `
+
+    const result = await dbClient.query(query, [documentId, toDepartmentId])
+
+    return result.rows[0]
+}
+
+const transferService = {create, getById, getListByDepId, updateTransferLog, getCountByDep, getLastActiveReq}
 
 export default transferService
 

@@ -23,6 +23,9 @@ const createTransferReq = asyncHandler( async(req, res) => {
     }
     
     const checkDocument = await documentService.getById(documentId)
+
+    // const existingTransferReq = await transferService.getLastActiveReq()
+
     const validFormDepartment = await departmentService.getById(fromDepartmentId)
     const validToDepartment = await departmentService.getById(toDepartmentId)
     const isUser = await userService.getUserById(forwardedBy)
@@ -189,4 +192,3 @@ const pendingCountByDep = asyncHandler( async(req, res) => {
 
 
 export {createTransferReq, getListByDepartmentId, acceptByTransferId, pendingCountByDep}
-
