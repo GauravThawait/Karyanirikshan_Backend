@@ -286,14 +286,18 @@ const updateDocument = asyncHandler( async(req, res) => {
         if(!validDepartment){
             throw new ApiError(400, "Invalid user input")
         }
+        
+        if(validDocument.department_id !== departmentId){
 
-        const existValidRequest = await transferService.getLastActiveReq(documentId, departmentId)
-    
-        const RejectExistTransferReq  = await transferService.updateTransferLog(existValidRequest.id, null, "declined")
+            const existValidRequest = await transferService.getLatestPendingReqToDep(documentId, validDocument.department_id)
+            
+            const RejectExistTransferReq  = await transferService.updateTransferLog(existValidRequest.id, null, "declined")
 
-        if(!RejectExistTransferReq){
-            throw new ApiError(500, "Something error while rejecting existing transfer req")
+            if(!RejectExistTransferReq){
+                throw new ApiError(500, "Something error while rejecting existing transfer req")
+            }
         }
+
     }
 
     const updatedFields = {

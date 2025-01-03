@@ -23,14 +23,22 @@ const createTransferReq = asyncHandler( async(req, res) => {
     }
     
     const checkDocument = await documentService.getById(documentId)
-
-    // const existingTransferReq = await transferService.getLastActiveReq()
-
     const validFormDepartment = await departmentService.getById(fromDepartmentId)
+
+    if(!checkDocument || !validFormDepartment){
+        throw new ApiError(400, "Bad request")
+    }
+
+    const existingPendingTransferReq = await transferService.getLatestPendingReqFromDep(documentId, validFormDepartment)
+
+    if(existingPendingTransferReq){
+        throw new ApiError(403, `Already transfer request made for ${existingPendingTransferReq.to_department_hindi_name}`)
+    }
+
     const validToDepartment = await departmentService.getById(toDepartmentId)
     const isUser = await userService.getUserById(forwardedBy)
 
-    if(!checkDocument || !validFormDepartment || !validToDepartment || !isUser)
+    if(!validToDepartment || !isUser)
     {
         throw new ApiError(400, "Bad request")
     }
@@ -190,5 +198,18 @@ const pendingCountByDep = asyncHandler( async(req, res) => {
     return res.status(200).json(new ApiResponse(200, data, "Data found Successfully"))
 })
 
+
+
+// const test = asyncHandler(async(req, res) => {
+
+//     const {documentId, FromDepartmentId} = req.body;
+
+//     console.log("api hitted")
+
+//     const data = await transferService.getLatestPendingReqFromDep(documentId, FromDepartmentId)
+//     console.log(data)
+
+//     return res.status(200).json(new ApiResponse(200, data, "Data found successfull"))
+// })
 
 export {createTransferReq, getListByDepartmentId, acceptByTransferId, pendingCountByDep}
