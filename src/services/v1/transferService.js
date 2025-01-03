@@ -96,8 +96,3 @@ const getLastActiveReq = async(documentId, toDepartmentId) => {
 const transferService = {create, getById, getListByDepId, updateTransferLog, getCountByDep, getLastActiveReq}
 
 export default transferService
-
-
-
- 
-
