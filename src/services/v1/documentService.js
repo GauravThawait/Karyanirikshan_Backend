@@ -90,9 +90,12 @@ const getById = async(Id) => {
         doc.grade,
         doc.tags,
         doc.current_department,
+        doc.register_id,
+        doc.category_id,
         dep_current.hindi_name AS current_department_hindi_name,
         reg.hindi_name AS register_hindi_name,
         dep.name AS department_name,
+        dep.type AS department_type,
         dep.hindi_name AS department_hindi_name,
         u.name AS created_by
     FROM 
