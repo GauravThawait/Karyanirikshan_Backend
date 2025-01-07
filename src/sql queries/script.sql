@@ -7,7 +7,7 @@ CREATE TABLE users (
     role VARCHAR(50) NOT NULL,                       
     department_id UUID NOT NULL,                     
     FOREIGN KEY (department_id) REFERENCES departments(id),
-	created_at TIMESTAMP DEFAULT NOW()
+	created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
 CREATE TABLE registers (
@@ -26,7 +26,7 @@ CREATE TABLE documents (
     name VARCHAR(50) NOT NULL,
     hindi_name VARCHAR(50) NOT NULL,
     type department_type NOT NULL, 
-    created_at TIMESTAMP DEFAULT NOW()
+    created_at TIMESTAMPTZ DEFAULT NOW()
 )
 
 
@@ -39,7 +39,7 @@ CREATE TABLE documents (
     title VARCHAR(255) NOT NULL,                                      -- Document title
     description TEXT,                                                 -- Document description
     created_by UUID NOT NULL,                                         -- Reference to users table
-    created_at TIMESTAMP NOT NULL,                               -- Timestamp of creation
+    created_at TIMESTAMPTZ NOT NULL,                               -- Timestamp of creation
     status VARCHAR(50) NOT NULL,                                      -- Document status
     priority VARCHAR(50),                                             -- Document priority
     grade VARCHAR(50),                                                -- Document grade
@@ -73,9 +73,7 @@ FOR EACH ROW
 WHEN (NEW.document_number IS NULL OR NEW.document_number = '')
 EXECUTE FUNCTION generate_document_number();
 
--- if required than run this
-ALTER TABLE documents
-ALTER COLUMN timestamp TYPE TIMESTAMPTZ USING timestamp AT TIME ZONE 'Asia/Kolkata';
+
 
 
 -- Step 1: Create the ENUM type for status of transfer logs
@@ -88,9 +86,9 @@ CREATE TABLE Transfer_Logs(
     to_department_id UUID NOT NULL,
     forwarded_by UUID NOT NULL,
     recived_by UUID,              
-    forward_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP, 
+    forward_date TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP, 
     status transfer_logs_status DEFAULT 'pending',      
-    acknowledged_date TIMESTAMP,                
+    acknowledged_date TIMESTAMPTZ,                
     remarks TEXT,                               -- Optional remarks for the forwarding action
     CONSTRAINT fk_document FOREIGN KEY (document_id)
         REFERENCES documents (id)      -- References a Documents table
@@ -121,7 +119,7 @@ CREATE TABLE document_logs(
     action TEXT NOT NULL,
     status document_logs_status NOT NULL DEFAULT 'pending',
     remark TEXT,
-    timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    timestamp TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT fk_document FOREIGN KEY (document_id)
         REFERENCES documents(id)
         ON DELETE CASCADE,
@@ -140,11 +138,11 @@ CREATE TABLE Work_status (
     document_id UUID NOT NULL,
     department_id UUID NOT NULL,
     accepted_by_id UUID NOT NULL,
-    accepted_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    accepted_time TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
     completed_by_id UUID,
-    completed_time TIMESTAMP,
+    completed_time TIMESTAMPTZ,
     status work_status DEFAULT 'pending',
-    timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    timestamp TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
     register_document_number VARCHAR(50),
 
     CONSTRAINT fk_document FOREIGN KEY (document_id)
