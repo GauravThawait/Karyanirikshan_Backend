@@ -9,9 +9,10 @@ import documentLogService from "../../services/v1/documentLogService.js";
 import categoryService from "../../services/v1/categoryService.js";
 import registerService from "../../services/v1/registerService.js";
 import xlsx from 'xlsx';
+import formatedDate from "../../utils/dateConvert.js";
 
 const createDocument = asyncHandler( async(req, res) => {
-
+console.log(req.body)
     const {
         registerId, 
         dispatchDocNumber,
@@ -23,7 +24,8 @@ const createDocument = asyncHandler( async(req, res) => {
         grade, 
         tags, 
         currentDeprtmentId, //at the time of creation this id is users department id which registered document
-        categoryId
+        categoryId,
+        date
     } = req.body
 
     const status = "created"
@@ -34,7 +36,8 @@ const createDocument = asyncHandler( async(req, res) => {
         departmentId,
         description, 
         createdBy,  
-        currentDeprtmentId].some((item) => {
+        currentDeprtmentId,
+        date].some((item) => {
             item === undefined || item === null || item.trim() === ""
         })){
             throw new ApiError(400, "All fields are required")
@@ -50,6 +53,9 @@ const createDocument = asyncHandler( async(req, res) => {
         throw new ApiError(400, "Invalid Request")
     }
 
+    const createdAt = formatedDate(date)
+    
+   
     //this logic for complaint section doc creation
     if(validDepartment.name === "Complaint"){
         if(!categoryId){
@@ -75,7 +81,8 @@ const createDocument = asyncHandler( async(req, res) => {
         grade, 
         tags, 
         currentDeprtmentId,
-        categoryId
+        categoryId,
+        createdAt
     )
 
     // this function create a transfer req. of document when document is created

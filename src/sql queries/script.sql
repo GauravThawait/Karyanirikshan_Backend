@@ -39,13 +39,14 @@ CREATE TABLE documents (
     title VARCHAR(255) NOT NULL,                                      -- Document title
     description TEXT,                                                 -- Document description
     created_by UUID NOT NULL,                                         -- Reference to users table
-    created_at TIMESTAMP DEFAULT NOW(),                               -- Timestamp of creation
+    created_at TIMESTAMP NOT NULL,                               -- Timestamp of creation
     status VARCHAR(50) NOT NULL,                                      -- Document status
     priority VARCHAR(50),                                             -- Document priority
     grade VARCHAR(50),                                                -- Document grade
     tags TEXT[],                                                      -- Tags as an array of text
     current_department UUID NOT NULL,
     category_id UUID,
+    timestamp TIMESTAMPZ DEFAULT NOW(),
     FOREIGN KEY (register_id) REFERENCES registers(id),                                 -- Reference to departments table
     FOREIGN KEY (department_id) REFERENCES departments(id),
     FOREIGN KEY (created_by) REFERENCES users(id),                    -- Foreign key to users table
@@ -71,6 +72,10 @@ BEFORE INSERT ON documents
 FOR EACH ROW
 WHEN (NEW.document_number IS NULL OR NEW.document_number = '')
 EXECUTE FUNCTION generate_document_number();
+
+-- if required than run this
+ALTER TABLE documents
+ALTER COLUMN timestamp TYPE TIMESTAMPTZ USING timestamp AT TIME ZONE 'Asia/Kolkata';
 
 
 -- Step 1: Create the ENUM type for status of transfer logs

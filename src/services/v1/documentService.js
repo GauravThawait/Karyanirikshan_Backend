@@ -13,7 +13,8 @@ const create = async(
         grade, 
         tags, 
         currentDeprtmentId,
-        categoryId
+        categoryId,
+        createdAt
 ) => {
 
     const query = `
@@ -30,9 +31,10 @@ const create = async(
             grade, 
             tags, 
             current_department,
-            category_id
+            category_id,
+            created_at
          )
-            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
+            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
             RETURNING *
         `
 
@@ -48,7 +50,8 @@ const create = async(
             grade, 
             tags, 
             currentDeprtmentId,
-            categoryId
+            categoryId,
+            createdAt
         ])
 
         return result.rows[0]
@@ -92,6 +95,8 @@ const getById = async(Id) => {
         doc.current_department,
         doc.register_id,
         doc.category_id,
+        doc.created_at,
+        doc.timestamp,
         dep_current.hindi_name AS current_department_hindi_name,
         reg.hindi_name AS register_hindi_name,
         dep.name AS department_name,
@@ -305,7 +310,8 @@ const exportAllData = async() => {
         dep_current.hindi_name AS "वर्त्तमान शाखा",
         doc.status AS "स्थिति",
         doc.grade AS "ग्रेड",
-        u.name AS "द्वारा पंजीकृत"
+        u.name AS "द्वारा पंजीकृत",
+        doc.created_at AS "पंजीकृत दिनांक"
     FROM 
         documents doc
     JOIN
