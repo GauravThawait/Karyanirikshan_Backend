@@ -10,6 +10,6 @@ router.route("/delete/:Id").get(deleteDocumentById)
 router.route("/dispose").post(disposeDocument)
 router.route("/search/:Id").get(getDocByNumber)
 router.route("/update").patch(updateDocument)
-router.route("/export/All").get(exportAllDocument)
+router.route("/export/all").get(exportAllDocument)
 
 export default router

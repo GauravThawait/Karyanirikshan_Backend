@@ -298,20 +298,21 @@ const updateById = async(documentId, updatedFields) => {
 
 //export data in xlsx query 
 
-const exportAllData = async() => {
-    const query = `
+const exportData = async (fromDateUTC, toDateUTC, department ) => {
+
+    let query = `
     SELECT
         doc.document_number AS "दस्तावेज क्रमांक",
-        doc.dispatch_doc_number AS "आवक-जावक क्रमांक",
         reg.hindi_name AS "रजिस्टर",
+        doc.created_at AS "पंजीकृत दिनांक",
+        doc.dispatch_doc_number AS "आवक-जावक क्रमांक",
         dep.hindi_name AS "शाखा",
         doc.title AS "शीर्षक",
         doc.description AS "विवरण",
         dep_current.hindi_name AS "वर्त्तमान शाखा",
         doc.status AS "स्थिति",
         doc.grade AS "ग्रेड",
-        u.name AS "द्वारा पंजीकृत",
-        doc.created_at AS "पंजीकृत दिनांक"
+        u.name AS "द्वारा पंजीकृत"
     FROM 
         documents doc
     JOIN
@@ -322,12 +323,34 @@ const exportAllData = async() => {
         departments dep_current ON doc.current_department = dep_current.id
     JOIN
         users u ON doc.created_by = u.id
+    WHERE 1=1
     `
 
-    const result = await dbClient.query(query)
+    const values = [];
+    let paramIndex = 1;
+    
+    if (department && department !== 'all') {
+        query += ` AND dep.id = $${paramIndex}`;
+        values.push(department);
+        paramIndex++
+    }
 
-    return result.rows || []
-}
+    if (fromDateUTC) {
+        query += ` AND doc.created_at >= $${paramIndex}`;
+        values.push(fromDateUTC);
+        paramIndex++
+    }
+
+    if (toDateUTC) {
+        query += ` AND doc.created_at <= $${paramIndex}`;
+        values.push(toDateUTC);
+        paramIndex++
+    }
+
+    const result = await dbClient.query(query, values);
+
+    return result.rows || [];
+};
 
 const documentService = {
     create, 
@@ -342,6 +365,7 @@ const documentService = {
     getDayWiseData, 
     getBydocNum,
     updateById,
-    exportAllData
+    exportData
 }
+
 export default documentService

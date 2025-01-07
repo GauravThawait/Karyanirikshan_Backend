@@ -325,26 +325,79 @@ const updateDocument = asyncHandler( async(req, res) => {
 })
 
 const exportAllDocument = asyncHandler( async(req, res) => {
-    console.log("yes hitted")
-    const data = await documentService.exportAllData()
-    console.log("data found")
-    if(!data){
-        throw new ApiError(400, "No data found")
+
+    const {fromDate, toDate, department} = req.body
+
+    if(department === undefined || department === null || department.trim() === " "){
+        throw new ApiError(400, "Invalid user request")
     }
 
-    const workbook = xlsx.utils.book_new()
+    let fromDateUTC;
+    let toDateUTC;
 
-    const worksheet = xlsx.utils.json_to_sheet(data)
+    if(fromDate){
+        fromDateUTC = new Date(fromDate)
+        fromDateUTC.setUTCHours(0, 0, 0, 0);
+        fromDateUTC.toISOString()
+    }
 
-    xlsx.utils.book_append_sheet(workbook, worksheet, "Documents")
+    if(toDate){
+        toDateUTC = new Date(toDate)
+        toDateUTC.setUTCHours(23, 59, 59, 999);
+        toDateUTC.toISOString()
+    }
+    console.log(fromDateUTC, toDateUTC)
+    if (department.toLowerCase() === "all") {
+        const data = await documentService.exportData(fromDateUTC, toDateUTC, department);
 
-    const excelBuffer = xlsx.write(workbook, { type : "buffer", bookType : "xlsx"})
+        if(!data){
+            throw new ApiError(500, "Internal Server Error")
+        }
 
-    res.setHeader("Content-Disposition", "attachment; filename=documents.xlsx")
+        return handleExcelExport(data, res);
+    }
+
+    if (isValidUUID(department)) {
+     
+        const validDepartment = await departmentService.getById(department);
+        if (!validDepartment) {
+            throw new ApiError(400, "Invalid department ID");
+        }
+
+        const data = await documentService.exportData(fromDateUTC, toDateUTC, validDepartment.id);
+
+        if(!data){
+            throw new ApiError(500, "Internal Server Error")
+        }
+      
+        return handleExcelExport(data, res);
+    }
+    
+})
+
+// function to sxport excel
+const handleExcelExport = (data, res) => {
+    if (!data || data.length === 0) {
+        throw new ApiError(400, "No data found");
+    }
+
+    const workbook = xlsx.utils.book_new();
+    const worksheet = xlsx.utils.json_to_sheet(data);
+    xlsx.utils.book_append_sheet(workbook, worksheet, "Documents");
+
+    const excelBuffer = xlsx.write(workbook, { type: "buffer", bookType: "xlsx" });
+
+    res.setHeader("Content-Disposition", "attachment; filename=documents.xlsx");
     res.setHeader("Content-Type", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
 
-    res.status(200).send(excelBuffer)
-})
+    res.status(200).send(excelBuffer);
+};
+
+const isValidUUID = (str) => {
+    const regex = /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/;
+    return regex.test(str);
+};
+
 
 export {
     createDocument, 
