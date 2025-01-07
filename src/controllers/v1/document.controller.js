@@ -12,7 +12,7 @@ import xlsx from 'xlsx';
 import formatedDate from "../../utils/dateConvert.js";
 
 const createDocument = asyncHandler( async(req, res) => {
-console.log(req.body)
+
     const {
         registerId, 
         dispatchDocNumber,
@@ -54,7 +54,6 @@ console.log(req.body)
     }
 
     const createdAt = formatedDate(date)
-    
    
     //this logic for complaint section doc creation
     if(validDepartment.name === "Complaint"){
@@ -84,7 +83,7 @@ console.log(req.body)
         categoryId,
         createdAt
     )
-
+    
     // this function create a transfer req. of document when document is created
     const createTranfer = await transferService.create(
         data.id,                      //created document Id

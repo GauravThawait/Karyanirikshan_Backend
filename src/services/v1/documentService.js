@@ -53,7 +53,7 @@ const create = async(
             categoryId,
             createdAt
         ])
-
+        
         return result.rows[0]
          
 }
