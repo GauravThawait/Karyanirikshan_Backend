@@ -399,6 +399,19 @@ const isValidUUID = (str) => {
 };
 
 
+
+const getAllGradeDocument = asyncHandler(async(req, res) => {
+    
+    const data = await documentService.getGradeDocument()
+
+    if(!data){
+        return res.status(200).json(new ApiResponse(200, [], "No data found"))
+    }
+
+    return res.status(200).json(new ApiResponse(200, data, "Data found Successfully"))
+})
+
+
 export {
     createDocument, 
     getAllList, 
@@ -407,5 +420,6 @@ export {
     disposeDocument, 
     getDocByNumber, 
     updateDocument, 
-    exportAllDocument
+    exportAllDocument,
+    getAllGradeDocument
 }

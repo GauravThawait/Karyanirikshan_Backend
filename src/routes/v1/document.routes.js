@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { createDocument, deleteDocumentById, disposeDocument, exportAllDocument, getAllList, getDocByNumber, getDocumentById, updateDocument } from "../../controllers/v1/document.controller.js";
+import { createDocument, deleteDocumentById, disposeDocument, exportAllDocument, getAllGradeDocument, getAllList, getDocByNumber, getDocumentById, updateDocument } from "../../controllers/v1/document.controller.js";
 
 const router = Router()
 
@@ -10,6 +10,7 @@ router.route("/delete/:Id").get(deleteDocumentById)
 router.route("/dispose").post(disposeDocument)
 router.route("/search/:Id").get(getDocByNumber)
 router.route("/update").patch(updateDocument)
+router.route("/grade/getall").get(getAllGradeDocument)
 router.route("/export/all").post(exportAllDocument)
 
 export default router

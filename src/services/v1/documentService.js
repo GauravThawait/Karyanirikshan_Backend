@@ -352,6 +352,12 @@ const exportData = async (fromDateUTC, toDateUTC, department ) => {
     return result.rows || [];
 };
 
+
+const getGradeDocument = async() => {
+    const query = `
+        SELECT `
+}
+
 const documentService = {
     create, 
     getAllList, 
