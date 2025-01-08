@@ -399,16 +399,67 @@ const isValidUUID = (str) => {
 };
 
 
-
 const getAllGradeDocument = asyncHandler(async(req, res) => {
     
-    const data = await documentService.getGradeDocument()
+    const departmentId = "c9faaea4-4b13-41dc-ad49-f9b6aeaac5b0" // complaint section department Id 
+
+    const data = await documentService.getGradeDocuments(departmentId)
+    
 
     if(!data){
         return res.status(200).json(new ApiResponse(200, [], "No data found"))
     }
 
     return res.status(200).json(new ApiResponse(200, data, "Data found Successfully"))
+})
+
+const updateDocGrade = asyncHandler( async(req, res) => {
+
+    const {documentId, userId, grade} = req.body
+
+    if([documentId, userId, grade].some((item) => item === undefined || item === null || item.trim() === " " )){
+        throw new ApiError(400, "Invalid user input")
+    }
+
+    const validDocument = await documentService.getById(documentId)
+
+    if(!validDocument){
+        throw ApiError(400, "Invlid Document Id")
+    }
+
+    const validUser = await userService.getUserById(userId)
+
+    if(!validUser){
+        throw new ApiError(400, "Invalid User credentials")
+    }
+
+    if (!['A', 'B', 'C'].includes(grade)) {
+        throw new ApiError(400, "Invalid grade input");
+    }
+    
+    const updatedFields = {
+        grade : `'${grade}'`
+    }
+
+    const data = await documentService.updateById(documentId, updatedFields)
+
+    if(!data){
+        throw new ApiError(500, "Internal Server Error")
+    }
+
+    const updatelog = await documentLogService.create(
+        validDocument.id,
+        validUser.department_id,
+        validUser.id,
+        `दस्तावेज ग्रेड ${grade} दिया गया`
+    )
+
+    if(!updatelog){
+        throw new ApiError(500, "Internal Server Error while creating log")
+    }
+
+    return res.status(200).json(new ApiResponse(200, data, "Grade Updated Successfully"))
+
 })
 
 
@@ -421,5 +472,6 @@ export {
     getDocByNumber, 
     updateDocument, 
     exportAllDocument,
-    getAllGradeDocument
+    getAllGradeDocument,
+    updateDocGrade
 }

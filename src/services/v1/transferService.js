@@ -32,6 +32,7 @@ const getListByDepId = async(Id) => {
             t.document_id AS document_id,
             doc.document_number AS document_number,
             doc.title AS document_title,
+            doc.status,
             t.to_department_id AS to_department_id,
             to_dep.name AS to_department_name,
             to_dep.hindi_name AS to_department_hindi_name,

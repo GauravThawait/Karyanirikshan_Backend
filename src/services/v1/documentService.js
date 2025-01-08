@@ -353,9 +353,32 @@ const exportData = async (fromDateUTC, toDateUTC, department ) => {
 };
 
 
-const getGradeDocument = async() => {
+const getGradeDocuments = async(departmentId) => {
     const query = `
-        SELECT `
+        SELECT 
+            doc.id,
+            doc.document_number,
+            doc.title,
+            doc.created_at AS created_at,
+            doc.grade,
+            dep.name AS department_name,
+            dep.hindi_name AS department_hindi_name
+        FROM documents doc
+        JOIN departments dep ON doc.department_id = dep.id
+        WHERE doc.grade <> ''
+            AND doc.department_id = $1
+            AND (doc.status = 'created' OR doc.status = 'pending')
+        ORDER BY 
+            CASE 
+                WHEN doc.grade = 'A' THEN 1
+                WHEN doc.grade = 'B' THEN 2
+                WHEN doc.grade = 'C' THEN 3
+                ELSE 4 
+            END,
+            created_at DESC; -- Secondary ordering by created_at `
+    
+    const result = await dbClient.query(query, [departmentId])
+    return result.rows || []
 }
 
 const documentService = {
@@ -371,7 +394,8 @@ const documentService = {
     getDayWiseData, 
     getBydocNum,
     updateById,
-    exportData
+    exportData,
+    getGradeDocuments
 }
 
 export default documentService
