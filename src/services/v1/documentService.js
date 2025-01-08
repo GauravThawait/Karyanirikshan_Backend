@@ -86,6 +86,7 @@ const getById = async(Id) => {
         doc.id,
         doc.document_number,
         doc.dispatch_doc_number,
+        doc.department_id,
         doc.title,
         doc.description,
         doc.status,

@@ -81,7 +81,46 @@ const getCountByDep = async(departmentId) => {
     return result.rows || 0
 }
 
-const transferService = {create, getById, getListByDepId, updateTransferLog, getCountByDep}
+//this for finding latest pending transfer req via to_department
+const getLatestPendingReqToDep = async(documentId, toDepartmentId) => {
+   
+    const query = `
+        SELECT * 
+        FROM
+            transfer_logs
+        WHERE document_id = $1 AND to_department_id = $2 AND status ='pending'
+        ORDER BY forward_date DESC `
+
+    const result = await dbClient.query(query, [documentId, toDepartmentId])
+
+    return result.rows[0]
+}
+
+//this for finding latest pending transfer req via to_department
+const getLatestPendingReqFromDep = async(documentId, fromDepartmentId) => {
+
+    const query = `
+        SELECT 
+            t.id,
+            t.document_id,
+            t.from_department_id,
+            dep1.hindi_name AS from_department_hindi_name,
+            t.to_department_id,
+            dep2.hindi_name AS to_department_hindi_name,
+            t.forward_date,
+            t.status
+        FROM
+            transfer_logs t
+        JOIN departments dep1 ON t.from_department_id = dep1.id
+        JOIN departments dep2 ON t.to_department_id = dep2.id
+        WHERE document_id = $1 AND from_department_id = $2 AND status ='pending'
+        ORDER BY forward_date DESC `
+
+    const result = await dbClient.query(query, [documentId, fromDepartmentId])
+    return result.rows[0]
+}
+
+const transferService = {create, getById, getListByDepId, updateTransferLog, getCountByDep, getLatestPendingReqToDep, getLatestPendingReqFromDep}
 
 export default transferService
 

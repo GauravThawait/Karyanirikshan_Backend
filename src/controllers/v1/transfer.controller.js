@@ -9,6 +9,7 @@ import { ApiResponse } from "../../utils/ApiResponse.js";
 import { asyncHandler } from "../../utils/asyncHandler.js";
 
 const createTransferReq = asyncHandler( async(req, res) => {
+    
     const {documentId, fromDepartmentId, toDepartmentId, forwardedBy, remarks} = req.body
 
 
@@ -24,10 +25,21 @@ const createTransferReq = asyncHandler( async(req, res) => {
     
     const checkDocument = await documentService.getById(documentId)
     const validFormDepartment = await departmentService.getById(fromDepartmentId)
+
+    if(!checkDocument || !validFormDepartment){
+        throw new ApiError(400, "Bad request")
+    }
+
+    const existingPendingTransferReq = await transferService.getLatestPendingReqFromDep(documentId, validFormDepartment.id)
+    if(existingPendingTransferReq){
+        throw new ApiError(403, `Already transfer request made for ${existingPendingTransferReq.to_department_hindi_name}`)
+    }
+
+
     const validToDepartment = await departmentService.getById(toDepartmentId)
     const isUser = await userService.getUserById(forwardedBy)
 
-    if(!checkDocument || !validFormDepartment || !validToDepartment || !isUser)
+    if(!validToDepartment || !isUser)
     {
         throw new ApiError(400, "Bad request")
     }

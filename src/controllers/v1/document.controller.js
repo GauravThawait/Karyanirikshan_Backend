@@ -263,6 +263,7 @@ const updateDocument = asyncHandler( async(req, res) => {
     }
 
     const validDocument = await documentService.getById(documentId)
+    
 
     if(!validDocument){
          throw new ApiError(400, "Document not found")
@@ -285,13 +286,26 @@ const updateDocument = asyncHandler( async(req, res) => {
         }
 
     }
-
+    
     if(departmentId){
         const validDepartment = await departmentService.getById(departmentId)
-    
+        
         if(!validDepartment){
             throw new ApiError(400, "Invalid user input")
         }
+        
+        if(validDocument.department_id !== departmentId){
+            
+            const existValidRequest = await transferService.getLatestPendingReqToDep(documentId, validDocument.department_id)
+           
+            
+            const RejectExistTransferReq  = await transferService.updateTransferLog(existValidRequest.id, null, "declined")
+
+            if(!RejectExistTransferReq){
+                throw new ApiError(500, "Something error while rejecting existing transfer req")
+            }
+        }
+
     }
 
     const updatedFields = {
@@ -307,7 +321,7 @@ const updateDocument = asyncHandler( async(req, res) => {
     };
 
     const data = await documentService.updateById(documentId, updatedFields)
-    
+
     const updatelog = await documentLogService.create(
         documentId,
         validUser.department_id,
@@ -345,7 +359,7 @@ const exportAllDocument = asyncHandler( async(req, res) => {
         toDateUTC.setUTCHours(23, 59, 59, 999);
         toDateUTC.toISOString()
     }
-    console.log(fromDateUTC, toDateUTC)
+    
     if (department.toLowerCase() === "all") {
         const data = await documentService.exportData(fromDateUTC, toDateUTC, department);
 
