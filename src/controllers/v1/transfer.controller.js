@@ -122,6 +122,10 @@ const acceptByTransferId = asyncHandler( async(req, res) => {
         throw new ApiError(400, "No Transfer Log found")
     }
 
+    if(validTransferReq.status == 'declined'){
+        throw new ApiError(400, "Invalid Transfer Accept Request")
+    }
+
     const validUser = await userService.getUserById(userId)
 
     if(!validUser){

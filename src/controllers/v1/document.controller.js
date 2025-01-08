@@ -438,7 +438,7 @@ const updateDocGrade = asyncHandler( async(req, res) => {
     }
     
     const updatedFields = {
-        grade : `'${grade}'`
+        grade : grade
     }
 
     const data = await documentService.updateById(documentId, updatedFields)
@@ -461,7 +461,6 @@ const updateDocGrade = asyncHandler( async(req, res) => {
     return res.status(200).json(new ApiResponse(200, data, "Grade Updated Successfully"))
 
 })
-
 
 export {
     createDocument, 
