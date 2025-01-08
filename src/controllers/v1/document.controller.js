@@ -228,7 +228,7 @@ const getDocByNumber = asyncHandler( async(req, res) => {
         throw new ApiError(400, "Invalid Request")
     }
 
-    if(!Id.startsWith("KN")){
+    if(!Id.startsWith("DN")){
         throw new ApiError(400, "Bad request")
     }
 
@@ -240,7 +240,6 @@ const getDocByNumber = asyncHandler( async(req, res) => {
 
     return res.status(200).json(new ApiResponse(200, data, "Data found successfull"))
 })
-
 
 const updateDocument = asyncHandler( async(req, res) => {
         
