@@ -294,7 +294,6 @@ const updateDocument = asyncHandler( async(req, res) => {
         }
     }
 
-
     const updatedFields = {
         ...(registerId && { register_id: registerId }),
         ...(dispatchDocNumber && { dispatch_doc_number: dispatchDocNumber }),
