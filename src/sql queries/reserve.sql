@@ -12,7 +12,40 @@ END;
 $$ LANGUAGE plpgsql;
 
 
-ALTER TABLE documents
-ALTER COLUMN created_at TYPE TIMESTAMPTZ USING created_at AT TIME ZONE 'Asia/Kolkata';
+
+select * from documents;
+
+alter table documents
+add applicant_name VARCHAR(255) NULL;
+
+alter table documents
+add respondent_name VARCHAR(255) NULL;
+
+alter table documents
+add document_subject VARCHAR(255) NULL;
+
+alter table documents
+add investigator VARCHAR(50) NULL;
+
+alter table documents
+add investigator_report_sending_date TIMESTAMPTZ NULL;
+
+alter table documents
+add investigator_report_receiving_date TIMESTAMPTZ NULL;
+
+alter table documents
+add supplementary_letter_receiving_date TIMESTAMPTZ NULL;
+
+alter table documents
+add document_report_result varchar(255) NULL;
+
+alter table documents
+add document_work_status varchar(50) NULL;
+
+alter table documents
+add document_references varchar(255) NULL;
+
+alter table documents
+add document_category varchar(50) NULL;
 
 

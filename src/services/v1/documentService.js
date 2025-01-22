@@ -382,6 +382,63 @@ const getGradeDocuments = async(departmentId) => {
     return result.rows || []
 }
 
+const filterData = async (filterParameter) => {
+    console.log(filterParameter)
+    const fields = Object.keys(filterParameter);
+    if (fields.length === 0) {
+        throw new ApiError("No fields to filter");
+    }
+
+    const setClause = fields
+        .map((field, index) => `LOWER(${field}) ILIKE LOWER($${index + 1})`)
+        .join(" AND ");
+
+    const query = `
+        SELECT 
+            doc.id,
+            doc.document_number,
+            doc.dispatch_doc_number,
+            doc.department_id,
+            doc.title,
+            doc.description,
+            doc.status,
+            doc.priority,
+            doc.grade,
+            doc.tags,
+            doc.current_department,
+            doc.register_id,
+            doc.category_id,
+            doc.created_at,
+            doc.timestamp,
+            doc.applicant_name AS applicantName,
+            doc.respondent_name AS respondentName,
+            doc.investigator AS investigator,
+            doc.investigator_report_sending_date AS investigatorReportSendingDate,
+            doc.investigator_report_receiving_date AS investogatorReportReceivingDate,
+            doc.document_work_status AS documentWorkStatus,
+            doc.document_report_result AS documentReportResult, 
+            dep_current.hindi_name AS current_department_hindi_name,
+            reg.hindi_name AS register_hindi_name,
+            dep.name AS department_name,
+            dep.type AS department_type,
+            dep.hindi_name AS department_hindi_name,
+            u.name AS created_by
+        FROM
+            documents doc
+        LEFT JOIN departments dep_current ON doc.current_department = dep_current.id
+        LEFT JOIN registers reg ON doc.register_id = reg.id
+        LEFT JOIN departments dep ON doc.department_id = dep.id
+        LEFT JOIN users u ON doc.created_by = u.id
+        WHERE ${setClause};
+    `;
+    console.log(query)
+    const values = fields.map((field) => `%${filterParameter[field]}%`); // For partial matches
+    console.log("values :", values)
+    const result = await dbClient.query(query, values);
+
+    return result.rows;
+};
+
 const documentService = {
     create, 
     getAllList, 
@@ -396,7 +453,8 @@ const documentService = {
     getBydocNum,
     updateById,
     exportData,
-    getGradeDocuments
+    getGradeDocuments,
+    filterData
 }
 
 export default documentService

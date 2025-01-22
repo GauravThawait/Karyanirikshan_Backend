@@ -12,7 +12,7 @@ import xlsx from 'xlsx';
 import formatedDate from "../../utils/dateConvert.js";
 
 const createDocument = asyncHandler( async(req, res) => {
-
+    console.log(("request body :", req.body))
     const {
         registerId, 
         dispatchDocNumber,
@@ -24,7 +24,7 @@ const createDocument = asyncHandler( async(req, res) => {
         grade, 
         tags, 
         currentDeprtmentId, //at the time of creation this id is users department id which registered document
-        categoryId,
+        category_id,
         date
     } = req.body
 
@@ -57,11 +57,11 @@ const createDocument = asyncHandler( async(req, res) => {
    
     //this logic for complaint section doc creation
     if(validDepartment.name === "Complaint"){
-        if(!categoryId){
+        if(!category_id){
             throw new ApiError(400, "All fields required")
         }
 
-        const validCategory = await categoryService.getById(categoryId)
+        const validCategory = await categoryService.getById(category_id)
 
         if(!validCategory){
             throw new ApiError(400, "Invalid Request")
@@ -80,7 +80,7 @@ const createDocument = asyncHandler( async(req, res) => {
         grade, 
         tags, 
         currentDeprtmentId,
-        categoryId,
+        category_id,
         createdAt
     )
     
@@ -241,6 +241,8 @@ const getDocByNumber = asyncHandler( async(req, res) => {
     return res.status(200).json(new ApiResponse(200, data, "Data found successfull"))
 })
 
+
+// this update contolller is for only dispatch section 
 const updateDocument = asyncHandler( async(req, res) => {
         
        const {
@@ -254,7 +256,7 @@ const updateDocument = asyncHandler( async(req, res) => {
         priority, 
         grade, 
         tags, 
-        categoryId
+        category_id
         } = req.body
 
     if(documentId === undefined || documentId === null || documentId.trim() === " "){
@@ -316,7 +318,7 @@ const updateDocument = asyncHandler( async(req, res) => {
         ...(priority && { priority }),
         ...(grade && { grade }),
         ...(tags && { tags }),
-        ...(categoryId && { category_id: categoryId }),
+        ...(category_id && { category_id: category_id }),
     };
 
     const data = await documentService.updateById(documentId, updatedFields)
@@ -474,6 +476,167 @@ const updateDocGrade = asyncHandler( async(req, res) => {
 
 })
 
+
+// this document update field for all departments like (complaint section to add other fields)
+const updateDocDetails = asyncHandler( async( req, res) => {
+    const {
+        documentId,
+        departmentId,
+        title,
+        description,
+        userId, 
+        priority, 
+        grade, 
+        tags, 
+        category_id,
+        applicantName,
+        respondentName,
+        investigator,
+        investigatorReportSendingDate,
+        investigatorReportReceivingDate,
+        documentReportResult,
+        documentWorkStatus,
+        documentReferences,
+        documentCategory
+        } = req.body
+
+    if(documentId === undefined || documentId === null || documentId.trim() === " "){
+        throw new ApiError(400, "Invalid document Id")
+    }
+
+    const validDocument = await documentService.getById(documentId)
+    
+
+    if(!validDocument){
+         throw new ApiError(400, "Document not found")
+    }
+
+    const validUser = await userService.getUserById(userId)
+
+    if(!validUser){
+        throw new ApiError(400, "Invalid User")
+    }
+
+    const validDepartment = await departmentService.getById(departmentId)
+
+    if(!validDepartment){
+        throw new ApiError(400, "Invalid Department Id")
+    }
+
+    // if(validUser.department_id !== validDocument.current_department){
+    //     throw new ApiError(403, "Invalid access to content")
+    // }
+
+    
+    // if(departmentId){
+    //     const validDepartment = await departmentService.getById(departmentId)
+        
+    //     if(!validDepartment){
+    //         throw new ApiError(400, "Invalid user input")
+    //     }
+        
+    //     if(validDocument.department_id !== departmentId){
+            
+    //         const existValidRequest = await transferService.getLatestPendingReqToDep(documentId, validDocument.department_id)
+           
+            
+    //         const RejectExistTransferReq  = await transferService.updateTransferLog(existValidRequest.id, null, "declined")
+
+    //         if(!RejectExistTransferReq){
+    //             throw new ApiError(500, "Something error while rejecting existing transfer req")
+    //         }
+    //     }
+
+    // }
+
+    const updatedFields = {
+        ...(title && { title }),
+        ...(description && { description }),
+        ...(priority && { priority }),
+        ...(grade && { grade }),
+        ...(tags && { tags }),
+        ...(category_id && { category_id: category_id }),
+        ...(applicantName && {applicant_name : applicantName}),
+        ...(respondentName && {respondent_name : respondentName}),
+        ...(investigator && {investigator : investigator}),
+        ...(investigatorReportSendingDate && { investigator_report_sending_date : investigatorReportSendingDate}),
+        ...(investigatorReportReceivingDate && {investigator_report_receiving_date : investigatorReportSendingDate}),
+        ...(documentReportResult && {document_report_result : documentReportResult}),
+        ...(documentWorkStatus && {document_work_status : documentWorkStatus}),
+        ...(documentReferences && {document_references : documentReferences}),
+        ...(documentCategory && {document_category : documentCategory})
+    };
+
+    const data = await documentService.updateById(documentId, updatedFields)
+
+    const updatelog = await documentLogService.create(
+        documentId,
+        validUser.department_id,
+        validUser.id,
+        "दस्तावेज विवरण संपादित किया गया"
+    )
+
+    if(!data || !updatelog){
+         throw new ApiError(500, "Internal Server Error")
+    }
+
+    return res.status(200).json(new ApiResponse(200, [] ,"Data updated successfully")) 
+})
+
+
+const documentFilter = asyncHandler( async(req, res) => {
+   
+    const {
+        registerId,
+        dispatchDocNumber, 
+        departmentId,
+        title,
+        description,
+        priority, 
+        grade, 
+        category_id,
+        applicantName,
+        respondentName,
+        investigator,
+        investigatorReportSendingDate,
+        investigatorReportReceivingDate,
+        documentWorkStatus,
+        documentCategory
+    } = req.body
+
+    const validDepartment = await departmentService.getById(departmentId)
+    
+    if(!validDepartment){
+        throw new ApiError(400, "Invalid Document Id")
+    }
+
+    const trimField = (field) => (field ? field.trim() : field);
+
+    const filterParameter = {
+        ...(trimField(registerId) && { register_id: trimField(registerId) }),
+        ...(trimField(dispatchDocNumber) && { dispatch_doc_number: trimField(dispatchDocNumber) }),
+        ...(trimField(title) && { title : trimField(title) }),
+        ...(trimField(description) && { description: trimField(description) }),
+        ...(trimField(priority) && { priority: trimField(priority) }),
+        ...(trimField(grade) && { grade: trimField(grade) }),
+        ...(trimField(category_id) && { category_id: trimField(category_id) }),
+        ...(trimField(applicantName) && {applicant_name : trimField(applicantName)}),
+        ...(trimField(respondentName) && {respondent_name : trimField(respondentName)}),
+        ...(trimField(investigator) && {investigator : trimField(investigator)}),
+        ...(trimField(investigatorReportSendingDate) && { investigator_report_sending_date : trimField(investigatorReportSendingDate)}),
+        ...(trimField(investigatorReportReceivingDate) && {investigator_report_receiving_date : trimField(investigatorReportSendingDate)}),
+        ...(trimField(documentWorkStatus) && {document_work_status : trimField(documentWorkStatus)}),
+        ...(trimField(documentCategory) && {document_category : trimField(documentCategory)})
+    }
+
+    const data = await documentService.filterData(filterParameter)
+
+    if(!data){
+        return res.status(200).json(new ApiResponse(200, [], "No data found"))
+    }
+
+    return res.status(200).json(new ApiResponse(200, data, "Data Found Successfully"))
+})
 export {
     createDocument, 
     getAllList, 
@@ -484,5 +647,7 @@ export {
     updateDocument, 
     exportAllDocument,
     getAllGradeDocument,
-    updateDocGrade
+    updateDocGrade,
+    updateDocDetails,
+    documentFilter
 }

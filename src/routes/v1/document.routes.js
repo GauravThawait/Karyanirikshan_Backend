@@ -4,11 +4,13 @@ import {
     createDocument, 
     deleteDocumentById, 
     disposeDocument, 
+    documentFilter, 
     exportAllDocument, 
     getAllGradeDocument, 
     getAllList, 
     getDocByNumber, 
     getDocumentById, 
+    updateDocDetails, 
     updateDocGrade, 
     updateDocument 
 } from "../../controllers/v1/document.controller.js";
@@ -25,5 +27,7 @@ router.route("/update").patch(updateDocument)
 router.route("/grade/update").post(updateDocGrade)
 router.route("/grade/getall").get(getAllGradeDocument)
 router.route("/export/all").post(exportAllDocument)
+router.route("/insert/update").post(updateDocDetails)
+router.route("/filter").post(documentFilter)
 
 export default router
