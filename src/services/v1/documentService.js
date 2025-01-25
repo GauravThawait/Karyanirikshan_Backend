@@ -13,7 +13,7 @@ const create = async(
         grade, 
         tags, 
         currentDeprtmentId,
-        categoryId,
+        category_id,
         createdAt
 ) => {
 
@@ -50,10 +50,10 @@ const create = async(
             grade, 
             tags, 
             currentDeprtmentId,
-            categoryId,
+            category_id,
             createdAt
         ])
-        
+        console.log("create doc result:", result.rows[0])
         return result.rows[0]
          
 }

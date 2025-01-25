@@ -12,7 +12,6 @@ import xlsx from 'xlsx';
 import formatedDate from "../../utils/dateConvert.js";
 
 const createDocument = asyncHandler( async(req, res) => {
-    console.log(("request body :", req.body))
     const {
         registerId, 
         dispatchDocNumber,
@@ -54,7 +53,7 @@ const createDocument = asyncHandler( async(req, res) => {
     }
 
     const createdAt = formatedDate(date)
-   
+
     //this logic for complaint section doc creation
     if(validDepartment.name === "Complaint"){
         if(!category_id){
@@ -68,6 +67,13 @@ const createDocument = asyncHandler( async(req, res) => {
         }
     }
 
+    let newCategoryId = category_id
+
+    if(category_id === ""){
+        newCategoryId = null
+    }
+
+    console.log("data created-------")
     const data = await documentService.create(
         registerId, 
         dispatchDocNumber, 
@@ -80,7 +86,7 @@ const createDocument = asyncHandler( async(req, res) => {
         grade, 
         tags, 
         currentDeprtmentId,
-        category_id,
+        newCategoryId,
         createdAt
     )
     
