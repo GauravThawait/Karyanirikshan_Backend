@@ -383,7 +383,6 @@ const getGradeDocuments = async(departmentId) => {
 }
 
 const filterData = async (filterParameter) => {
-    console.log(filterParameter)
     const fields = Object.keys(filterParameter);
     if (fields.length === 0) {
         throw new ApiError("No fields to filter");
@@ -410,13 +409,13 @@ const filterData = async (filterParameter) => {
             doc.category_id,
             doc.created_at,
             doc.timestamp,
-            doc.applicant_name AS applicantName,
-            doc.respondent_name AS respondentName,
-            doc.investigator AS investigator,
-            doc.investigator_report_sending_date AS investigatorReportSendingDate,
-            doc.investigator_report_receiving_date AS investogatorReportReceivingDate,
-            doc.document_work_status AS documentWorkStatus,
-            doc.document_report_result AS documentReportResult, 
+            doc.applicant_name,
+            doc.respondent_name,
+            doc.investigator,
+            doc.investigator_report_sending_date,
+            doc.investigator_report_receiving_date,
+            doc.document_work_status,
+            doc.document_report_result,
             dep_current.hindi_name AS current_department_hindi_name,
             reg.hindi_name AS register_hindi_name,
             dep.name AS department_name,
@@ -431,9 +430,7 @@ const filterData = async (filterParameter) => {
         LEFT JOIN users u ON doc.created_by = u.id
         WHERE ${setClause};
     `;
-    console.log(query)
     const values = fields.map((field) => `%${filterParameter[field]}%`); // For partial matches
-    console.log("values :", values)
     const result = await dbClient.query(query, values);
 
     return result.rows;

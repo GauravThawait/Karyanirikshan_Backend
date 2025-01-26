@@ -503,7 +503,8 @@ const updateDocDetails = asyncHandler( async( req, res) => {
         documentReportResult,
         documentWorkStatus,
         documentReferences,
-        documentCategory
+        documentCategory,
+        phoneNumber
         } = req.body
 
     if(documentId === undefined || documentId === null || documentId.trim() === " "){
@@ -570,7 +571,8 @@ const updateDocDetails = asyncHandler( async( req, res) => {
         ...(documentReportResult && {document_report_result : documentReportResult}),
         ...(documentWorkStatus && {document_work_status : documentWorkStatus}),
         ...(documentReferences && {document_references : documentReferences}),
-        ...(documentCategory && {document_category : documentCategory})
+        ...(documentCategory && {document_category : documentCategory}),
+        ...(phoneNumber && {phone_number : phoneNumber})
     };
 
     const data = await documentService.updateById(documentId, updatedFields)
@@ -607,13 +609,14 @@ const documentFilter = asyncHandler( async(req, res) => {
         investigatorReportSendingDate,
         investigatorReportReceivingDate,
         documentWorkStatus,
-        documentCategory
+        documentCategory,
+        phoneNumber
     } = req.body
 
     const validDepartment = await departmentService.getById(departmentId)
     
     if(!validDepartment){
-        throw new ApiError(400, "Invalid Document Id")
+        throw new ApiError(400, "Invalid Department Id")
     }
 
     const trimField = (field) => (field ? field.trim() : field);
@@ -632,7 +635,8 @@ const documentFilter = asyncHandler( async(req, res) => {
         ...(trimField(investigatorReportSendingDate) && { investigator_report_sending_date : trimField(investigatorReportSendingDate)}),
         ...(trimField(investigatorReportReceivingDate) && {investigator_report_receiving_date : trimField(investigatorReportSendingDate)}),
         ...(trimField(documentWorkStatus) && {document_work_status : trimField(documentWorkStatus)}),
-        ...(trimField(documentCategory) && {document_category : trimField(documentCategory)})
+        ...(trimField(documentCategory) && {document_category : trimField(documentCategory)}),
+        ...(trimField(phoneNumber) && {phone_number : trimField(phoneNumber)})
     }
 
     const data = await documentService.filterData(filterParameter)
