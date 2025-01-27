@@ -10,6 +10,7 @@ import {
     getAllList, 
     getDocByNumber, 
     getDocumentById, 
+    getGroupDocumentByDate, 
     updateDocDetails, 
     updateDocGrade, 
     updateDocument 
@@ -29,5 +30,6 @@ router.route("/grade/getall").get(getAllGradeDocument)
 router.route("/export/all").post(exportAllDocument)
 router.route("/insert/update").post(updateDocDetails)
 router.route("/filter").post(documentFilter)
+router.route('/getdoc/date').post(getGroupDocumentByDate) 
 
 export default router

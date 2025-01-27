@@ -66,12 +66,17 @@ const getAllList = async() => {
             d.created_at,
             d.title,
             d.status,
+            d.dispatch_doc_number,
             dep.name AS department_name,
-            dep.hindi_name AS department_hindi_name
+            dep.hindi_name AS department_hindi_name,
+            d.register_id,
+            reg.hindi_name AS register_hindi_name
         FROM
             documents d
         JOIN 
             departments dep ON d.department_id = dep.id
+        JOIN
+            registers reg ON d.register_id = reg.id
         ORDER BY
             d.created_at DESC `
 
@@ -165,14 +170,19 @@ const getDocByDeptId = async(departmentId) => {
             d.created_at,
             d.title,
             d.status,
+            d.dispatch_doc_number,
             dep.name AS department_name,
-            dep.hindi_name AS department_hindi_name
+            dep.hindi_name AS department_hindi_name,
+            d.register_id,
+            reg.hindi_name AS register_hindi_name
         FROM
             documents d
         JOIN 
             departments dep ON d.department_id = dep.id
         JOIN
             work_status w ON w.document_id = d.id
+        JOIN
+            registers reg ON d.register_id = reg.id
         WHERE 
             w.department_id = $1
         ORDER BY
@@ -436,6 +446,51 @@ const filterData = async (filterParameter) => {
     return result.rows;
 };
 
+
+const getGroupDocByDate = async (departmentId, offset, limit) => {
+    // Common Table Expression (CTE) with row_number for grouping by date
+    let query = `
+        WITH PaginatedDocuments AS (
+            SELECT 
+                d.id,
+                d.document_number,
+                d.created_at,
+                d.title,
+                d.status,
+                dep.name AS department_name,
+                dep.hindi_name AS department_hindi_name,
+                ROW_NUMBER() OVER (PARTITION BY DATE(d.created_at) ORDER BY d.created_at DESC) AS row_num,
+                DATE(d.created_at) AS document_date
+            FROM
+                documents d
+            JOIN 
+                departments dep ON d.department_id = dep.id
+            JOIN
+                work_status w ON w.document_id = d.id
+            ${departmentId ? `WHERE w.department_id = $1` : ""}
+        )
+        SELECT * 
+        FROM PaginatedDocuments
+        WHERE row_num BETWEEN $${departmentId ? 2 : 1} AND $${departmentId ? 3 : 2}
+        ORDER BY document_date DESC, row_num ASC;
+    `;
+
+    // Parameters for query
+    const params = [];
+    if (departmentId) {
+        params.push(departmentId); // Add departmentId as the first parameter
+    }
+    params.push(offset, offset + limit - 1); // Add pagination parameters
+
+    console.log("query:", query);
+    console.log("params:", params);
+
+    // Execute the query
+    const result = await dbClient.query(query, params);
+
+    return result.rows || []
+}
+
 const documentService = {
     create, 
     getAllList, 
@@ -451,7 +506,8 @@ const documentService = {
     updateById,
     exportData,
     getGradeDocuments,
-    filterData
+    filterData,
+    getGroupDocByDate
 }
 
 export default documentService

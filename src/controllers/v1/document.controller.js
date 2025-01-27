@@ -694,6 +694,78 @@ const documentFilter = asyncHandler( async(req, res) => {
 
     return res.status(200).json(new ApiResponse(200, data, "Data Found Successfully"))
 })
+
+const getGroupDocumentByDate = asyncHandler(async(req, res) => {
+    const { departmentId } = req.body;
+
+    const page = parseInt(req.query.page, 10) || 1
+    const limit = parseInt(req.query.limit, 10) || 10
+
+    if (page <= 0 || limit <= 0) {
+        throw new ApiError(400, "Page and limit must be positive integers");
+    }
+
+    const offset = (page - 1) * limit;
+
+    if (departmentId) {
+
+        console.log("department id recived")
+        if (departmentId === undefined || departmentId === null || departmentId.trim() === "") {
+            throw new ApiError(400, "Invalid Request");
+        }
+
+        const validDepartment = await departmentService.getById(departmentId);
+
+        if (!validDepartment) {
+            throw new ApiError(400, "Bad request");
+        }
+
+        const documents = await documentService.getGroupDocByDate(departmentId, offset, limit);
+
+        if (!documents || documents.length === 0) {
+            return res.status(200).json(new ApiResponse(200, {}, "No data found"));
+        }
+
+        const groupedByDate = documents.reduce((acc, doc) => {
+            const date = doc.created_at.toISOString().split("T")[0]; // Extract date in YYYY-MM-DD format
+            if (!acc[date]) {
+                acc[date] = [];
+            }
+            acc[date].push(doc);
+            return acc;
+        }, {});
+
+        return res.status(200).json(
+            new ApiResponse(200, groupedByDate, "Data found successfully", {
+                page: Number(page),
+                limit: Number(limit),
+            })
+        );
+    }
+
+    
+    const documents = await documentService.getGroupDocByDate(null ,offset, limit);
+
+    if (!documents || documents.length === 0) {
+        return res.status(200).json(new ApiResponse(200, {}, "No data found"));
+    }
+
+
+    const groupedByDate = documents.reduce((acc, doc) => {
+        const dateKey = new Date(doc.created_at).toISOString().split("T")[0];
+        acc[dateKey] = acc[dateKey] || [];
+        acc[dateKey].push(doc);
+        return acc;
+    }, {});
+
+    return res.status(200).json(
+        new ApiResponse(200, groupedByDate, "Data found successfully", {
+            page: Number(page),
+            limit: Number(limit),
+        })
+    );
+})
+
 export {
     createDocument, 
     getAllList, 
@@ -706,5 +778,6 @@ export {
     getAllGradeDocument,
     updateDocGrade,
     updateDocDetails,
-    documentFilter
+    documentFilter,
+    getGroupDocumentByDate
 }
