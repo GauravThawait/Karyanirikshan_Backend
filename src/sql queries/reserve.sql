@@ -48,4 +48,7 @@ add document_references varchar(255) NULL;
 alter table documents
 add document_category varchar(50) NULL;
 
+ALTER TABLE documents
+add phone_number varchar(50) NULL;
+
 

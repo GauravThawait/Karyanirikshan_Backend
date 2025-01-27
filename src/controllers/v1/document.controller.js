@@ -10,6 +10,7 @@ import categoryService from "../../services/v1/categoryService.js";
 import registerService from "../../services/v1/registerService.js";
 import xlsx from 'xlsx';
 import formatedDate from "../../utils/dateConvert.js";
+import workstatusService from "../../services/v1/workstatusService.js";
 
 const createDocument = asyncHandler( async(req, res) => {
     const {
@@ -203,10 +204,22 @@ const disposeDocument = asyncHandler(async(req, res) => {
 
     const validDocument = await documentService.getById(documentId);
     const validUser = await userService.getUserById(userId)
-
+            
     if(!validDocument || !validUser){
         throw new ApiError(400, "Bad Request")
     }
+
+    const findDepartmentName = await departmentService.getById(validUser.department_id)
+    
+    const completeWorkBydept = await workstatusService.update(documentId, userId)
+
+    const updateLogs0 = await documentLogService.create(
+        validDocument.id,                        //document Id
+        validUser.department_id,          // department Id of the users which perform action
+        validUser.id,                    // usrer id which performed action
+        `दस्तावेज कार्य ${findDepartmentName.hindi_name} द्वारा पूर्ण`,
+        remark
+    )
 
     const data = await documentService.updateStatus(documentId, "completed")
 
@@ -214,7 +227,7 @@ const disposeDocument = asyncHandler(async(req, res) => {
         data.id,                        //document Id
         validUser.department_id,          // department Id of the users which perform action
         validUser.id,                    // usrer id which performed action
-        "दस्तावेज कार्य सम्पूर्ण",
+        "दस्तावेज कार्य पूर्णतः सम्पूर्ण",
         remark
     )
 
@@ -262,7 +275,8 @@ const updateDocument = asyncHandler( async(req, res) => {
         priority, 
         grade, 
         tags, 
-        category_id
+        category_id,
+        date
         } = req.body
 
     if(documentId === undefined || documentId === null || documentId.trim() === " "){
@@ -304,8 +318,7 @@ const updateDocument = asyncHandler( async(req, res) => {
         if(validDocument.department_id !== departmentId){
             
             const existValidRequest = await transferService.getLatestPendingReqToDep(documentId, validDocument.department_id)
-           
-            
+
             const RejectExistTransferReq  = await transferService.updateTransferLog(existValidRequest.id, null, "declined")
 
             if(!RejectExistTransferReq){
@@ -313,6 +326,11 @@ const updateDocument = asyncHandler( async(req, res) => {
             }
         }
 
+    }
+
+    let updatedDate;
+    if(date){
+        updatedDate = formatedDate(date)
     }
 
     const updatedFields = {
@@ -325,6 +343,7 @@ const updateDocument = asyncHandler( async(req, res) => {
         ...(grade && { grade }),
         ...(tags && { tags }),
         ...(category_id && { category_id: category_id }),
+        ...(updatedDate && {created_at : updatedDate})
     };
 
     const data = await documentService.updateById(documentId, updatedFields)
