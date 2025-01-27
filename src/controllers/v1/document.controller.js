@@ -74,7 +74,7 @@ const createDocument = asyncHandler( async(req, res) => {
         newCategoryId = null
     }
 
-    console.log("data created-------")
+
     const data = await documentService.create(
         registerId, 
         dispatchDocNumber, 
@@ -263,12 +263,11 @@ const getDocByNumber = asyncHandler( async(req, res) => {
 
 // this update contolller is for only dispatch section 
 const updateDocument = asyncHandler( async(req, res) => {
-        
        const {
         documentId,
         registerId,
         dispatchDocNumber, 
-        departmentId,
+        departmentId,           //this department id is document department id which respect doc is issued
         title,
         description,
         createdBy, 
@@ -308,25 +307,43 @@ const updateDocument = asyncHandler( async(req, res) => {
 
     }
     
-    if(departmentId){
-        const validDepartment = await departmentService.getById(departmentId)
+    let isDepartmentChanged = false
+
+    //if user use edit for changing the department id of document
+    const validDepartment = await departmentService.getById(departmentId)
         
-        if(!validDepartment){
-            throw new ApiError(400, "Invalid user input")
-        }
+    if(!validDepartment){
+        throw new ApiError(400, "Invalid user input")
+    }
         
         if(validDocument.department_id !== departmentId){
-            
+            //first find the last active/pending request 
             const existValidRequest = await transferService.getLatestPendingReqToDep(documentId, validDocument.department_id)
-
+    
+            //then invalid the last transfer req.
             const RejectExistTransferReq  = await transferService.updateTransferLog(existValidRequest.id, null, "declined")
-
+          
             if(!RejectExistTransferReq){
                 throw new ApiError(500, "Something error while rejecting existing transfer req")
             }
+            
+            //create a new transfer log for new edited department of document
+            const createNewTransferLog = await transferService.create(
+                validDocument.id,
+                validUser.department_id,
+                validDepartment.id,
+                validUser.id
+            )
+
+            if(!createNewTransferLog){
+                throw new ApiError(500, "Error while createing new transfer request")
+            }
+
+            isDepartmentChanged = true
+
         }
 
-    }
+
 
     let updatedDate;
     if(date){
@@ -354,6 +371,17 @@ const updateDocument = asyncHandler( async(req, res) => {
         validUser.id,
         "दस्तावेज विवरण संपादित किया गया"
     )
+
+    // if departmenet id is changed than we create a log for new department id
+    if(isDepartmentChanged === true){
+        const updateTransferLog = await documentLogService.create(
+            validDocument.id,
+            validUser.department_id,
+            validUser.id,
+            `दस्तावेज ${validDepartment.hindi_name} शाखा भेजा गया`
+        )
+        console.log("new updated departmentId transfer log created")
+    }
 
     if(!data || !updatelog){
          throw new ApiError(500, "Internal Server Error")

@@ -53,7 +53,7 @@ const create = async(
             category_id,
             createdAt
         ])
-        console.log("create doc result:", result.rows[0])
+    
         return result.rows[0]
          
 }
